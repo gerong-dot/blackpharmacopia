@@ -1,73 +1,28 @@
-# React + TypeScript + Vite
+# **포니오 님** 커미션 사이트
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+이 저장소는 **포니오(@PNO564) 님**의 갠홈 커미션 비공개 저장소입니다. 아래에 있는 체크리스트로 진행상황을 알 수 있어요.
 
-Currently, two official plugins are available:
+## 레이아웃 작업 현황
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[피그마](https://www.figma.com/design/kEzqToTGr43RJYXWtTkfLL/commission_1?m=auto&t=hiR7EtofnXxzRG1a-1)에서 실시간 작업 현황을 확인 하실 수 있어요.
 
-## React Compiler
+## 체크리스트
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**레이아웃**
 
-## Expanding the ESLint configuration
+- [ ] Lo-Fi 레이아웃 구상
+- [ ] Hi-Fi 레이아웃 구상
+- [ ] 레이아웃 사이트로 구현
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**기능**
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- [ ] Prisma ORM으로 sqlite 연결
+- [ ] 로그인 기능 구현
+- [ ] 관리자 페이지 생성
+- [ ] 관리자 페이지 유튜브 음악 리스트 관리 기능 구현
+- [ ] 관리자 페이지 게시판 관리 기능 구현
+- [ ] 관리자 페이지 게시판 별 포스트 관리 기능 구현
+- [ ] 관리자 페이지 방명록 글 관리 기능 구현
+- [ ] 유튜브 배경음악 기능 구현
+- [ ] 방명록 기능 구현
+- [ ] 글 작성 페이지 기능 구현
