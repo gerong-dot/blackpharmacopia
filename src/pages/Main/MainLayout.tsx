@@ -22,7 +22,7 @@ function MainLayout() {
       <img
         src="/ld.png"
         alt="메인화면 배경 페어 LD 이미지"
-        className="fixed top-0 right-0 h-screen -z-[1] pointer-events-none"
+        className="fixed top-0 right-0 h-screen -z-[1] mask-l-from-30% pointer-events-none"
       />
     </main>
   );
