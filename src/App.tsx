@@ -1,8 +1,10 @@
+import { Route, Routes } from 'react-router';
+import Enter from './pages/Enter/Enter';
 function App() {
   return (
-    <main>
-      <h1>안녕 세상!</h1>
-    </main>
+    <Routes>
+      <Route index element={<Enter />} />
+    </Routes>
   );
 }
 
