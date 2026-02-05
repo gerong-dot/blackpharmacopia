@@ -20,8 +20,8 @@ function MainMenu() {
       to: '/main/gallery',
     },
     {
-      name: 'BBS',
-      to: '/main/bbs',
+      name: 'Guestbook',
+      to: '/main/guestbook',
     },
   ];
   return (

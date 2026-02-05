@@ -5,7 +5,7 @@ import MainScreen from './pages/Main/MainScreen';
 import About from './pages/About/About';
 import Board from './pages/Board/Board';
 import Gallery from './pages/Gallery/Gallery';
-import BBS from './pages/BBS/BBS';
+import Guestbook from './pages/Guestbook/Guestbook';
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="board" element={<Board />} />
           <Route path="gallery" element={<Gallery />} />
-          <Route path="bbs" element={<BBS />} />
+          <Route path="guestbook" element={<Guestbook />} />
         </Route>
       </Route>
     </Routes>

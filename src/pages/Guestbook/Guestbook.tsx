@@ -1,4 +1,4 @@
-function BBS() {
+function Guestbook() {
   return (
     <main>
       <h1>방명록</h1>
@@ -6,4 +6,4 @@ function BBS() {
   );
 }
 
-export default BBS;
+export default Guestbook;
