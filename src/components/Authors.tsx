@@ -1,7 +1,6 @@
 import type { IPostList } from '../../dto/notion';
 
 function Authors({ authors }: { authors: IPostList['author'] }) {
-  console.log(authors);
   return (
     <div className="flex items-center">
       <div className="avatar-group -space-x-4">
