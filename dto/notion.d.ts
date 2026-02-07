@@ -52,6 +52,22 @@ export interface IPostMetadata extends PageObjectResponse {
   };
 }
 
+export interface IGuestbookData extends PageObjectResponse {
+  properties: {
+    이름: {
+      title: [{ plain_text: string }];
+    };
+    방문일: {
+      date: {
+        start: Date;
+      };
+    };
+    내용: {
+      rich_text: [{ plain_text: string }];
+    };
+  };
+}
+
 interface IGalleryItem extends IPostMetadata {
   cover: {
     type: 'external';
