@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
-import type { IPostList } from '../../../dto/notion.d.ts';
+import type { IPostMetadata } from '../../../dto/notion.d.ts';
 import PostListItem from '../../components/PostListItem.tsx';
 import { useState } from 'react';
 
 function Board() {
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
-  const { data, isLoading, isError, error } = useQuery<IPostList[]>({
+  const { data, isLoading, isError, error } = useQuery<IPostMetadata[]>({
     queryKey: ['posts'],
     queryFn: () => ky.get('/api/board/all').json(),
     retry: 5,
@@ -16,16 +16,18 @@ function Board() {
   if (isLoading) return <Loader2Icon className="text-center animate-spin" />;
   if (!data || isError) return <h1 className="text-xl">{error?.message}</h1>;
 
+  console.log(data);
+
   const groupedPost = data.reduce(
     (acc, post) => {
-      const cat = post.category || '카테고리 없음';
+      const cat = post.properties.카테고리.select.name || '카테고리 없음';
 
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(post);
 
       return acc;
     },
-    {} as Record<string, IPostList[]>,
+    {} as Record<string, IPostMetadata[]>,
   );
 
   const categories = ['전체', ...Object.keys(groupedPost)];
