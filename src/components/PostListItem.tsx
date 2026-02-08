@@ -18,7 +18,9 @@ function PostListItem({ element }: { element: IPostMetadata }) {
         <Authors authors={element.properties.작성자.people} />
         <div className="flex items-center gap-2">
           <span className="text-slate-500 text-sm">
-            {element.properties.카테고리.select.name}
+            {element.properties.카테고리.select
+              ? element.properties.카테고리.select.name
+              : '카테고리 없음'}
           </span>
           <span className="text-slate-400 text-xs">{createdAt}</span>
         </div>

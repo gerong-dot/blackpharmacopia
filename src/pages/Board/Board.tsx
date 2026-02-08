@@ -18,7 +18,9 @@ function Board() {
 
   const groupedPost = data.reduce(
     (acc, post) => {
-      const cat = post.properties.카테고리.select.name || '카테고리 없음';
+      const cat = post.properties.카테고리.select
+        ? post.properties.카테고리.select.name
+        : '카테고리 없음';
 
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(post);
