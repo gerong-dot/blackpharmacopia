@@ -1,4 +1,4 @@
-import { notionHQ } from './_lib/notion.ts';
+import { notionHQ } from './_lib/notion';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {

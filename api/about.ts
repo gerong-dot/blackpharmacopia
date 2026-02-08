@@ -1,4 +1,4 @@
-import { notion, notionHQ } from './_lib/notion.ts';
+import { notion, notionHQ } from './_lib/notion';
 
 export default async function handler(req, res) {
   try {
