@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router';
 import MainMenu from './MainMenu';
 import Title from '../../components/Title';
+import MusicPlayer from '../../components/MusicPlayer';
 
 function MainLayout() {
   return (
@@ -14,7 +15,10 @@ function MainLayout() {
         <Title />
       </header>
       <section className="flex gap-4 grow min-h-0">
-        <MainMenu />
+        <div>
+          <MainMenu />
+          <MusicPlayer />
+        </div>
         <div className="bg-background/60 w-1/2 backdrop-blur-lg rounded-2xl p-4 overflow-y-auto">
           <Outlet />
         </div>
