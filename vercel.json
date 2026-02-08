@@ -1,13 +1,16 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/api/gallery/:id",
-      "destination": "/api/gallery/[id].js"
+      "source": "/api/board/:id",
+      "destination": "/api/board/[id].ts"
     },
     {
-      "source": "/api/board/:id",
-      "destination": "/api/board/[id].js"
+      "source": "/api/gallery/:id",
+      "destination": "/api/gallery/[id].ts"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
       "source": "/(.*)",
