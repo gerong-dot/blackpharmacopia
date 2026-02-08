@@ -49,7 +49,7 @@ function Board() {
             </button>
           ))}
         </nav>
-        <ul className="w-full bg-white rounded-xl">
+        <ul className="w-full bg-base-100 rounded-xl">
           {displayedPost.map((el) => (
             <PostListItem element={el} key={el.id} />
           ))}

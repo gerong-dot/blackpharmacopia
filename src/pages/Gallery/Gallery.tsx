@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { ExtendedRecordMap } from 'notion-types';
 import { createPortal } from 'react-dom';
 import { NotionRenderer } from 'react-notion-x';
+import useDarkMode from '../../hooks/useDarkMode';
 
 interface IGalleryItem extends IPostMetadata {
   cover: {
@@ -34,6 +35,8 @@ function Gallery() {
     enabled: !!selectedId,
   });
 
+  const isDarkMode = useDarkMode();
+
   if (isLoading) return <Loader2Icon className="animate-spin" />;
   if (!data || isError)
     return <h1 className="text-xl font-bold">{error?.message}</h1>;
@@ -59,7 +62,10 @@ function Gallery() {
                 <h3 className="font-bold text-lg">
                   {galleryDetail.metadata?.properties.제목.title[0].plain_text}
                 </h3>
-                <NotionRenderer recordMap={galleryDetail.recordMap} />
+                <NotionRenderer
+                  recordMap={galleryDetail.recordMap}
+                  darkMode={isDarkMode}
+                />
               </>
             ) : galleryDetailError ? (
               <h1 className="text-xl font-bold">

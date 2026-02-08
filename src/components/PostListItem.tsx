@@ -9,7 +9,7 @@ function PostListItem({ element }: { element: IPostMetadata }) {
   return (
     <Link
       to={`/main/board/${element.id}`}
-      className="flex flex-col p-2 gap-2 not-last:border-b not-last:border-b-background grow"
+      className="flex flex-col p-2 gap-2 not-last:border-b not-last:border-b-slate-500 grow"
     >
       <li>
         <h1 className="text-3xl font-noto-serif font-bold">
