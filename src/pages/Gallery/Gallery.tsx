@@ -1,22 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
-import type { IPostMetadata } from '../../../dto/notion';
 import Card from './Card';
 import { useState } from 'react';
 import type { ExtendedRecordMap } from 'notion-types';
 import { createPortal } from 'react-dom';
 import { NotionRenderer } from 'react-notion-x';
 import useDarkMode from '../../hooks/useDarkMode';
-
-interface IGalleryItem extends IPostMetadata {
-  cover: {
-    type: 'external';
-    external: {
-      url: string;
-    };
-  };
-}
+import type { IGalleryItem } from '../../../dto/notion';
 
 function Gallery() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
