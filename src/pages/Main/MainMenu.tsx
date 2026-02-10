@@ -25,12 +25,12 @@ function MainMenu() {
     },
   ];
   return (
-    <nav className="w-48">
-      <ul className="flex flex-col items-center gap-4">
+    <nav className="w-full lg:w-48">
+      <ul className="flex flex-row lg:flex-col justify-between lg:items-center lg:gap-4">
         {menus.map(({ name, to }) => (
           <li key={name}>
             <Link to={to}>
-              <button className="btn btn-ghost font-playfair-display text-2xl">
+              <button className="btn btn-xs lg:btn-md btn-ghost font-playfair-display text-xl lg:text-2xl">
                 {name}
               </button>
             </Link>
