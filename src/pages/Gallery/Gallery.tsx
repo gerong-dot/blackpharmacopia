@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2Icon } from 'lucide-react';
 import Card from './Card';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import type { IGalleryItem } from '../../../dto/notion';
 import { getGalleryAll, getGalleryPost } from '../../services/api';
 
 function Gallery() {
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, isLoading, isError, error } = useQuery<IGalleryItem[]>({
@@ -37,11 +38,25 @@ function Gallery() {
     setSelectedId(id);
   };
 
+  const handleMouseEnter = (id: string) => {
+    queryClient.prefetchQuery({
+      queryKey: ['picture', id],
+      queryFn: () => getGalleryPost(id),
+      staleTime: 1000 * 60 * 5,
+    });
+  };
+
   return (
     <>
       <main className="w-full grow grid grid-cols-2 lg:grid-cols-3 gap-4">
         {data.map((el) => (
-          <Card element={el} key={el.id} onClick={() => handleClick(el.id)} />
+          <Card
+            element={el}
+            key={el.id}
+            onClick={() => handleClick(el.id)}
+            onMouseEnter={() => handleMouseEnter(el.id)}
+            onPointerDown={() => handleMouseEnter(el.id)}
+          />
         ))}
       </main>
       {createPortal(
@@ -55,14 +70,14 @@ function Gallery() {
           />
           <div className="modal" role="dialog">
             <div className="modal-box m-4 lg:w-1/2 lg:max-w-2/3">
+              <button
+                className="btn btn-sm btn-circle btn-ghost absolute right-5 top-5 z-10"
+                onClick={() => setIsModalOpen(false)}
+              >
+                ✕
+              </button>
               {!isGalleryLoading && galleryDetail ? (
                 <>
-                  <button
-                    className="btn btn-sm btn-circle btn-ghost absolute right-5 top-5 z-10"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    ✕
-                  </button>
                   <div className="relative">
                     <h3 className="font-bold text-lg">
                       {
