@@ -31,7 +31,7 @@ function Post() {
   const { properties } = data.metadata;
   return (
     <>
-      <div className="flex flex-col items-center p-4 bg-base-100 grow rounded-xl">
+      <div className="flex flex-col items-center p-2 lg:p-4 bg-base-100 grow rounded-xl">
         <h1 className="font-noto-serif text-2xl lg:text-4xl font-bold">
           {properties.제목.title[0].plain_text}
         </h1>

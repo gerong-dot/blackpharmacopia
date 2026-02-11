@@ -23,7 +23,7 @@ function MainLayout() {
           <MainMenu />
           <MusicPlayer />
         </div>
-        <div className="bg-background/60 w-full lg:w-1/2 backdrop-blur-lg rounded-2xl p-4 overflow-y-auto">
+        <div className="bg-background/60 w-full lg:w-1/2 backdrop-blur-lg rounded-2xl p-2 lg:p-4 overflow-y-auto">
           <Outlet />
         </div>
       </section>
