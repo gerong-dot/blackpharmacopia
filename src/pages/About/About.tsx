@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
 import { NotionRenderer } from 'react-notion-x';
 import type { ExtendedRecordMap } from 'notion-types';
 import useDarkMode from '../../hooks/useDarkMode';
+import { getAbout } from '../../services/api';
 
 function About() {
   const {
@@ -13,8 +13,7 @@ function About() {
     error,
   } = useQuery<ExtendedRecordMap>({
     queryKey: ['about'],
-    queryFn: () => ky.get(`/api/about`).json(),
-    retry: 5,
+    queryFn: getAbout,
   });
   const isDarkMode = useDarkMode();
 

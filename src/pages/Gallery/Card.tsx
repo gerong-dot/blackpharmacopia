@@ -3,15 +3,21 @@ import type { IGalleryItem } from '../../../dto/notion';
 function Card({
   element,
   onClick,
+  onMouseEnter,
+  onPointerDown,
 }: {
   element: IGalleryItem;
   onClick: () => void;
+  onMouseEnter: () => void;
+  onPointerDown: () => void;
 }) {
   return (
     <label
       key={element.id}
       className="hover-3d cursor-pointer"
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onPointerDown={onPointerDown}
       htmlFor="picture-modal"
     >
       <figure className="w-full aspect-square">

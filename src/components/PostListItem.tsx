@@ -2,7 +2,15 @@ import { Link } from 'react-router';
 import type { IPostMetadata } from '../../dto/notion.d.ts';
 import Authors from './Authors.tsx';
 
-function PostListItem({ element }: { element: IPostMetadata }) {
+function PostListItem({
+  element,
+  onMouseEnter,
+  onPointerDown,
+}: {
+  element: IPostMetadata;
+  onMouseEnter: () => void;
+  onPointerDown: () => void;
+}) {
   const createdAt = new Date(element.created_time).toLocaleString('ko-KR', {
     timeZone: 'Asia/Seoul',
   });
@@ -10,6 +18,8 @@ function PostListItem({ element }: { element: IPostMetadata }) {
     <Link
       to={`/main/board/${element.id}`}
       className="flex flex-col p-2 gap-2 not-last:border-b not-last:border-b-slate-500 grow"
+      onMouseEnter={onMouseEnter}
+      onPointerDown={onPointerDown}
     >
       <li>
         <h1 className="text-xl lg:text-3xl font-noto-serif font-bold">

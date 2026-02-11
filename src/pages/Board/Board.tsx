@@ -1,16 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2Icon } from 'lucide-react';
 import type { IPostMetadata } from '../../../dto/notion.d.ts';
 import PostListItem from '../../components/PostListItem.tsx';
 import { useState } from 'react';
+import { getBoardAll, getBoardPost } from '../../services/api.ts';
 
 function Board() {
+  const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const { data, isLoading, isError, error } = useQuery<IPostMetadata[]>({
     queryKey: ['posts'],
-    queryFn: () => ky.get('/api/board/all').json(),
-    retry: 5,
+    queryFn: getBoardAll,
   });
 
   if (isLoading) return <Loader2Icon className="text-center animate-spin" />;
@@ -35,6 +35,14 @@ function Board() {
   const displayedPost =
     selectedCategory === '전체' ? data : groupedPost[selectedCategory] || [];
 
+  const handleMouseEnter = (id: string) => {
+    queryClient.prefetchQuery({
+      queryKey: ['post', id],
+      queryFn: () => getBoardPost(id),
+      staleTime: 1000 * 60 * 5,
+    });
+  };
+
   return (
     <main className="flex flex-col gap-2 h-full">
       <>
@@ -51,7 +59,12 @@ function Board() {
         </nav>
         <ul className="w-full bg-base-100 rounded-xl">
           {displayedPost.map((el) => (
-            <PostListItem element={el} key={el.id} />
+            <PostListItem
+              element={el}
+              key={el.id}
+              onMouseEnter={() => handleMouseEnter(el.id)}
+              onPointerDown={() => handleMouseEnter(el.id)}
+            />
           ))}
         </ul>
       </>

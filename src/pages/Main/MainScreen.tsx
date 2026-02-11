@@ -1,17 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
 import { NotionRenderer } from 'react-notion-x';
 import type { ExtendedRecordMap } from 'notion-types';
 import useDarkMode from '../../hooks/useDarkMode';
+import { getMain } from '../../services/api';
 
 function MainScreen() {
   const { data, isLoading, isError, error } = useQuery<{
     recordMap: ExtendedRecordMap;
   }>({
     queryKey: ['main'],
-    queryFn: () => ky.get(`/api/main?query=main`).json(),
-    retry: 5,
+    queryFn: getMain,
   });
 
   const isDarkMode = useDarkMode();
