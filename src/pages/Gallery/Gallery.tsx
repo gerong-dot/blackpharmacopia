@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
 import Card from './Card';
 import { useState } from 'react';
@@ -8,13 +7,14 @@ import { createPortal } from 'react-dom';
 import { NotionRenderer } from 'react-notion-x';
 import useDarkMode from '../../hooks/useDarkMode';
 import type { IGalleryItem } from '../../../dto/notion';
+import { getGalleryAll, getGalleryPost } from '../../services/api';
 
 function Gallery() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, isLoading, isError, error } = useQuery<IGalleryItem[]>({
     queryKey: ['galleries'],
-    queryFn: () => ky.get('/api/gallery/all').json(),
+    queryFn: getGalleryAll,
   });
 
   const {
@@ -23,7 +23,7 @@ function Gallery() {
     error: galleryDetailError,
   } = useQuery<{ metadata: IGalleryItem; recordMap: ExtendedRecordMap }>({
     queryKey: ['picture', selectedId],
-    queryFn: () => ky.get(`/api/gallery/${selectedId}`).json(),
+    queryFn: () => getGalleryPost(selectedId!),
     enabled: !!selectedId,
   });
 

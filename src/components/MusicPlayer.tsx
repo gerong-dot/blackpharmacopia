@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import type { IManagePageListProperties } from '../../dto/notion';
 import { useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import { Loader2Icon, PauseIcon, PlayIcon } from 'lucide-react';
+import { getMusicUrl } from '../services/api';
 
 function MusicPlayer() {
   const [playing, setPlaying] = useState(true);
@@ -11,7 +11,7 @@ function MusicPlayer() {
   const { data, isLoading, isError, error } =
     useQuery<IManagePageListProperties>({
       queryKey: ['url'],
-      queryFn: () => ky.get('/api/main?query=playlist').json(),
+      queryFn: getMusicUrl,
     });
 
   if (isLoading && !data) <Loader2Icon className="animate-spin" />;

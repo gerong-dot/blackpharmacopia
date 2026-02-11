@@ -1,16 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
 import type { IPostMetadata } from '../../../dto/notion.d.ts';
 import PostListItem from '../../components/PostListItem.tsx';
 import { useState } from 'react';
+import { getBoardAll } from '../../services/api.ts';
 
 function Board() {
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const { data, isLoading, isError, error } = useQuery<IPostMetadata[]>({
     queryKey: ['posts'],
-    queryFn: () => ky.get('/api/board/all').json(),
-    retry: 5,
+    queryFn: getBoardAll,
   });
 
   if (isLoading) return <Loader2Icon className="text-center animate-spin" />;

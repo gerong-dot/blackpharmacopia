@@ -1,24 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import { Loader2Icon } from 'lucide-react';
-import type { ExtendedRecordMap } from 'notion-types';
 import { NotionRenderer } from 'react-notion-x';
 import { useParams } from 'react-router';
-import type { IPostMetadata } from '../../../dto/notion';
 import Authors from '../../components/Authors';
 import useDarkMode from '../../hooks/useDarkMode';
+import { getBoardPost } from '../../services/api';
 
 function Post() {
   const { id } = useParams();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['post', id],
-    queryFn: () =>
-      ky
-        .get<{
-          metadata: IPostMetadata;
-          recordMap: ExtendedRecordMap;
-        }>(`/api/board/${id}`)
-        .json(),
+    queryFn: () => getBoardPost(id!),
   });
 
   const isDarkMode = useDarkMode();

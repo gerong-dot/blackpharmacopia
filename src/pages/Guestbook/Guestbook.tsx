@@ -4,6 +4,7 @@ import { Loader2Icon } from 'lucide-react';
 import type { IGuestbookData } from '../../../dto/notion';
 import type { KeyboardEvent, SubmitEvent } from 'react';
 import { useState } from 'react';
+import { getGuestBookAll } from '../../services/api';
 
 function Guestbook() {
   const [name, setName] = useState('');
@@ -13,7 +14,7 @@ function Guestbook() {
     IGuestbookData[]
   >({
     queryKey: ['guestbook'],
-    queryFn: () => ky.get('/api/guestbook').json(),
+    queryFn: getGuestBookAll,
   });
   const queryClient = useQueryClient();
   const {
