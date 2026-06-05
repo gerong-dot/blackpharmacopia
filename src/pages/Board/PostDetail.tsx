@@ -26,7 +26,7 @@ export default function PostDetail() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
 
-  useEffect(() => { fetchAll() }, [id])
+  useEffect(() => { fetchAll() }, [id, user?.id])
 
   async function fetchAll() {
     const [postRes, commentsRes, reactionsRes, myReactionRes] = await Promise.all([
@@ -161,7 +161,7 @@ export default function PostDetail() {
               <p className="text-sm leading-relaxed" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{c.content}</p>
             </div>
             {(c.author_id === user?.id || profile?.is_admin) && (
-              <button onClick={() => handleDeleteComment(c.id)} className="opacity-0 group-hover:opacity-30 hover:!opacity-70 transition-opacity shrink-0 mt-1" style={{ color: 'var(--char-blue)' }}>
+              <button onClick={() => handleDeleteComment(c.id)} aria-label="댓글 삭제" className="opacity-0 group-hover:opacity-30 hover:!opacity-70 transition-opacity shrink-0 mt-1" style={{ color: 'var(--char-blue)' }}>
                 <Trash2 size={12} />
               </button>
             )}
@@ -180,6 +180,7 @@ export default function PostDetail() {
           />
           <button
             type="submit"
+            aria-label="댓글 등록"
             disabled={submitting || !commentText.trim()}
             className="px-3 py-2 rounded-sm text-white disabled:opacity-40 transition-opacity"
             style={{ background: 'var(--char-blue)' }}
