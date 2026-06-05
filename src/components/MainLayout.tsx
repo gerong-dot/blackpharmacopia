@@ -103,7 +103,7 @@ export default function MainLayout() {
       <div className="flex-1 flex gap-2 p-3 overflow-hidden" style={{ maxHeight: 'calc(100vh - 49px)' }}>
 
         {/* 왼쪽 패널 */}
-        <div className="hidden md:flex flex-col gap-2 overflow-y-auto" style={{ width: '220px', minWidth: '220px' }}>
+        <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px' }}>
           <WindowCard title="PROFILE" dark style={{ flexShrink: 0 }}>
             {user && profile ? (
               /* 로그인 상태 */
