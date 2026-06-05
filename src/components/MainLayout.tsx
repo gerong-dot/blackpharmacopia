@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate, Link } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
 import { LogOut, Menu, X, ImagePlay } from 'lucide-react'
+import MusicPlayer from './MusicPlayer'
 
 const navItems = [
   { to: '/main', label: 'HOME', end: true },
@@ -112,8 +113,10 @@ export default function MainLayout() {
         className="text-center py-6 text-xs"
         style={{ color: 'var(--char-blue)', opacity: 0.5, fontFamily: 'var(--font-title)' }}
       >
-        © blackpharmacopia
+        © EroGuroNonsense
       </footer>
+
+      <MusicPlayer />
     </div>
   )
 }

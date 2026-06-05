@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { supabase } from '../../lib/supabase'
 import type { Post } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { Lock } from 'lucide-react'
 import { PenSquare } from 'lucide-react'
 
 export default function BoardPage() {
@@ -65,11 +66,16 @@ export default function BoardPage() {
                       {post.category}
                     </span>
                   )}
-                  <span
-                    className="truncate text-base font-medium group-hover:underline"
-                    style={{ fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}
-                  >
-                    {post.title}
+                  <span className="flex items-center gap-1.5 truncate">
+                    {(post as Post & { is_private?: boolean }).is_private && (
+                      <Lock size={12} style={{ color: 'var(--char-red)', flexShrink: 0 }} />
+                    )}
+                    <span
+                      className="truncate text-base font-medium group-hover:underline"
+                      style={{ fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}
+                    >
+                      {post.title}
+                    </span>
                   </span>
                 </div>
                 <span className="text-xs opacity-40 shrink-0" style={{ fontFamily: 'var(--font-sans)' }}>

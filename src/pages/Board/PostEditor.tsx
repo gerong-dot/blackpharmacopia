@@ -17,6 +17,7 @@ export default function PostEditor() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('general')
+  const [isPrivate, setIsPrivate] = useState(false)
   const [mode, setMode] = useState<EditorMode>('rich')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -28,6 +29,7 @@ export default function PostEditor() {
       if (data) {
         setTitle(data.title)
         setContent(data.content)
+        setIsPrivate(data.is_private ?? false)
         setCategory(data.category)
       }
     }
@@ -46,14 +48,14 @@ export default function PostEditor() {
     if (isEdit) {
       const { error } = await supabase
         .from('posts')
-        .update({ title, content, category, updated_at: new Date().toISOString() })
+        .update({ title, content, category, is_private: isPrivate, updated_at: new Date().toISOString() })
         .eq('id', id)
       if (error) { setError(error.message); setSaving(false); return }
       navigate(`/main/board/${id}`)
     } else {
       const { data, error } = await supabase
         .from('posts')
-        .insert({ title, content, category, author_id: profile?.id })
+        .insert({ title, content, category, is_private: isPrivate, author_id: profile?.id })
         .select()
         .single()
       if (error) { setError(error.message); setSaving(false); return }
@@ -113,6 +115,23 @@ export default function PostEditor() {
             onChange={e => setCategory(e.target.value)}
           />
         </div>
+
+        {/* 비공개 토글 */}
+        <label className="flex items-center gap-2 cursor-pointer w-fit">
+          <div
+            onClick={() => setIsPrivate(v => !v)}
+            className="w-10 h-5 rounded-full transition-colors relative"
+            style={{ background: isPrivate ? 'var(--char-red)' : 'rgba(0,17,60,0.15)' }}
+          >
+            <div
+              className="w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all"
+              style={{ left: isPrivate ? '22px' : '2px' }}
+            />
+          </div>
+          <span className="text-xs" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', opacity: 0.7 }}>
+            관리자만 열람 가능
+          </span>
+        </label>
 
         {/* 탭 */}
         <div className="flex gap-2 items-center flex-wrap">
