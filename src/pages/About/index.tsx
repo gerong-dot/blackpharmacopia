@@ -4,11 +4,11 @@ import { getSiteSetting, setSiteSetting } from '../../lib/storage'
 import { useAuth } from '../../contexts/AuthContext'
 import { Pencil, Check, X, Eye, Code } from 'lucide-react'
 import RichEditor from '../../components/RichEditor'
-import { useSiteImage } from '../../hooks/useSiteImage'
+import ImageUpload from '../../components/ImageUpload'
 
 export default function NoticePage() {
   const { profile } = useAuth()
-  const aboutImage = useSiteImage('about_image')
+  const [aboutImage, setAboutImage] = useState('')
   const [content, setContent] = useState('')
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
@@ -17,8 +17,16 @@ export default function NoticePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getSiteSetting('notice_content').then(v => { setContent(v); setLoading(false) })
+    Promise.all([
+      getSiteSetting('notice_content'),
+      getSiteSetting('about_image'),
+    ]).then(([c, img]) => { setContent(c); setAboutImage(img); setLoading(false) })
   }, [])
+
+  async function handleImageUploaded(url: string) {
+    setAboutImage(url)
+    await setSiteSetting('about_image', url)
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -69,11 +77,21 @@ export default function NoticePage() {
       </div>
 
       {/* 소개 이미지 */}
-      {aboutImage && !editing && (
-        <div className="w-full rounded-sm overflow-hidden mb-6 border" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
-          <img src={aboutImage} alt="notice" className="w-full object-cover block" style={{ maxHeight: '300px' }} />
+      {profile?.is_admin ? (
+        <div className="mb-6">
+          <ImageUpload
+            storagePath="site/about-image"
+            currentUrl={aboutImage}
+            onUploaded={handleImageUploaded}
+            label="공지 이미지 (클릭하여 업로드 · 크롭 가능)"
+            aspectClass="aspect-video"
+          />
         </div>
-      )}
+      ) : aboutImage ? (
+        <div className="w-full rounded-sm overflow-hidden mb-6 border" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
+          <img src={aboutImage} alt="notice" className="w-full object-cover block" />
+        </div>
+      ) : null}
 
       {/* 편집 모드 */}
       {editing ? (

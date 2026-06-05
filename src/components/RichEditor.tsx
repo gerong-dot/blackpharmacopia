@@ -105,11 +105,11 @@ export default function RichEditor({ value, onChange }: Props) {
         placeholder={`<h2>제목</h2>\n<p>내용을 입력하세요...</p>\n\n툴바 버튼으로 서식을 삽입하거나 HTML을 직접 작성하세요.`}
         className="w-full px-4 py-3 outline-none bg-white text-sm"
         style={{
-          fontFamily: 'monospace',
-          fontSize: '0.85rem',
+          fontFamily: "'Nanum Myeongjo', serif",
+          fontSize: '0.95rem',
           color: 'var(--char-blue)',
           resize: 'vertical',
-          lineHeight: 1.7,
+          lineHeight: 1.9,
         }}
       />
     </div>
