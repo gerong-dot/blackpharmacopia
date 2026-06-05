@@ -103,7 +103,7 @@ export default function MainLayout() {
       <div className="flex-1 flex gap-2 p-3 overflow-hidden" style={{ maxHeight: 'calc(100vh - 49px)' }}>
 
         {/* 왼쪽 패널 */}
-        <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px' }}>
+        <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px', height: '100%', overflow: 'hidden' }}>
           <WindowCard title="PROFILE" dark style={{ flexShrink: 0 }}>
             {user && profile ? (
               /* 로그인 상태 */
@@ -176,8 +176,10 @@ export default function MainLayout() {
 
           <MiniGuestbook />
 
-          {/* 채팅 하단 이미지 슬롯 */}
-          <PanelImage settingKey="left_panel_bottom" aspectClass="aspect-square" />
+          {/* 채팅 하단 이미지 슬롯 — 고정 높이로 항상 표시 */}
+          <div style={{ height: '180px', flexShrink: 0 }}>
+            <PanelImage settingKey="left_panel_bottom" aspectClass="" />
+          </div>
         </div>
 
         {/* 오른쪽 패널 */}

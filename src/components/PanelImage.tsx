@@ -31,10 +31,12 @@ export default function PanelImage({ settingKey, aspectClass = 'aspect-square' }
   // 비로그인 or 일반유저 — 이미지 없으면 아무것도 안 보임
   if (!profile?.is_admin && !url) return null
 
+  const sizeClass = aspectClass || 'h-full'
+
   // 이미지 있으면 그냥 보여줌 (일반유저도)
   if (!profile?.is_admin && url) {
     return (
-      <div className={`w-full ${aspectClass} overflow-hidden rounded-sm`}>
+      <div className={`w-full ${sizeClass} overflow-hidden rounded-sm`}>
         <img src={url} alt="" className="w-full h-full object-cover block" draggable={false} />
       </div>
     )
@@ -43,7 +45,7 @@ export default function PanelImage({ settingKey, aspectClass = 'aspect-square' }
   // 관리자 — 업로드 UI
   return (
     <div
-      className={`w-full ${aspectClass} relative group cursor-pointer rounded-sm overflow-hidden border`}
+      className={`w-full ${sizeClass} relative group cursor-pointer rounded-sm overflow-hidden border`}
       style={{ borderColor: 'rgba(195,195,195,0.12)', background: 'rgba(195,195,195,0.04)' }}
       onClick={() => inputRef.current?.click()}
     >
