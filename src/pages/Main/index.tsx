@@ -32,11 +32,11 @@ export default function MainScreen() {
     <div className="flex flex-col gap-5 pb-4">
       {/* 배너 — 고정 높이로 수정 */}
       {mainBanner && (
-        <div className="w-full rounded-sm overflow-hidden border" style={{ height: '150px', borderColor: 'rgba(0,17,60,0.1)' }}>
+        <div className="w-full rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
           <img
             src={mainBanner}
             alt="banner"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: bannerPos, display: 'block' }}
+            style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', display: 'block' }}
           />
         </div>
       )}
@@ -55,7 +55,7 @@ export default function MainScreen() {
           </div>
 
           {/* 날짜 */}
-          <p className="tracking-widest opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.75rem' }}>
+          <p className="tracking-widest opacity-50" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '1rem' }}>
             2026 · 01 · 07
           </p>
 
@@ -84,16 +84,10 @@ export default function MainScreen() {
             </div>
           </div>
 
-          {/* 인용구 */}
-          <p className="text-center leading-relaxed opacity-35" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.7rem', letterSpacing: '0.06em' }}>
+          {/* 인용구 — 선 제거 */}
+          <p className="text-center leading-relaxed opacity-50" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.8rem', letterSpacing: '0.06em' }}>
             틀린다는 것은<br/>또 다른 결과값의<br/>도출이랍니다.
           </p>
-
-          <div className="flex items-center gap-2 w-full">
-            <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(0,17,60,0.15))' }} />
-            <span style={{ color: 'var(--char-red)', fontSize: '0.6rem' }}>✦</span>
-            <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(0,17,60,0.15))' }} />
-          </div>
         </div>
 
         {/* 오른쪽: 어니스트 */}
