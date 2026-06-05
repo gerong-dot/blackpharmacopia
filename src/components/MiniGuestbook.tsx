@@ -44,7 +44,7 @@ export default function MiniGuestbook() {
   }
 
   return (
-    <WindowCard title="CHAT" style={{ flex: 1 }} noPad>
+    <WindowCard title="CHAT" dark style={{ flex: 1 }} noPad>
       {/* 메시지 목록 */}
       <div className="flex flex-col gap-2 p-3 overflow-y-auto" style={{ maxHeight: '320px', minHeight: '200px' }}>
         {entries.length === 0 && (
@@ -57,17 +57,17 @@ export default function MiniGuestbook() {
           return (
             <div key={entry.id} className={`flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
               {!isMe && (
-                <span className="text-xs opacity-40 px-1" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+                <span className="text-xs px-1" style={{ fontFamily: 'var(--font-title)', color: 'rgba(195,195,195,0.35)' }}>
                   {entry.author_name}
                 </span>
               )}
               <div
-                className="px-3 py-1.5 rounded-2xl text-xs max-w-[85%] leading-relaxed break-words"
+                className="px-3 py-1.5 text-xs max-w-[85%] leading-relaxed break-words"
                 style={{
-                  background: isMe ? 'var(--char-blue)' : 'rgba(0,17,60,0.07)',
-                  color: isMe ? 'white' : 'var(--char-blue)',
+                  background: isMe ? 'var(--char-red)' : 'rgba(195,195,195,0.08)',
+                  color: 'rgba(195,195,195,0.85)',
                   fontFamily: 'var(--font-sans)',
-                  borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                  borderRadius: isMe ? '12px 12px 4px 12px' : '12px 12px 12px 4px',
                 }}
               >
                 {entry.content}
@@ -82,15 +82,15 @@ export default function MiniGuestbook() {
       <form
         onSubmit={handleSubmit}
         className="flex items-center gap-2 px-3 py-2 border-t"
-        style={{ borderColor: 'rgba(0,17,60,0.08)' }}
+        style={{ borderColor: 'rgba(195,195,195,0.08)' }}
       >
         <input
           className="flex-1 text-xs px-3 py-1.5 rounded-full outline-none border"
           style={{
-            borderColor: 'rgba(0,17,60,0.12)',
+            borderColor: 'rgba(195,195,195,0.1)',
             fontFamily: 'var(--font-sans)',
-            color: 'var(--char-blue)',
-            background: 'rgba(0,17,60,0.03)',
+            color: 'rgba(195,195,195,0.8)',
+            background: 'rgba(195,195,195,0.05)',
           }}
           placeholder="메시지..."
           value={text}
