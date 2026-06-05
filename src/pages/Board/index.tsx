@@ -121,7 +121,7 @@ export default function BoardPage() {
                 <span className="text-xs opacity-30" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
                   {postsByBoard(board.slug).length}개
                 </span>
-                {profile?.is_admin && board.slug !== 'general' && (
+                {profile?.is_admin && (
                   <button onClick={e => { e.stopPropagation(); handleDeleteBoard(board.slug) }}
                     className="opacity-0 group-hover:opacity-30 hover:!opacity-70 transition-opacity text-xs"
                     style={{ color: 'var(--char-red)' }}>✕</button>
