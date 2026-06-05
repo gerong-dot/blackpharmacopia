@@ -17,6 +17,17 @@
 
 * { box-sizing: border-box; }
 
+/* 커스텀 커서 */
+body.custom-cursor,
+body.custom-cursor * { cursor: url('/cursors/default.png') 4 4, auto !important; }
+body.custom-cursor a,
+body.custom-cursor button,
+body.custom-cursor [role="button"],
+body.custom-cursor label { cursor: url('/cursors/pointer.png') 8 4, pointer !important; }
+body.custom-cursor input,
+body.custom-cursor textarea { cursor: url('/cursors/text.png') 4 12, text !important; }
+body.custom-cursor .cursor-move { cursor: url('/cursors/move.png') 8 8, move !important; }
+
 body {
   margin: 0;
   background-color: var(--dark);

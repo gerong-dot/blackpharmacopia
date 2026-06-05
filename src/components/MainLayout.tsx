@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
 import { LogOut, ImagePlay, Camera, Pencil, Check, X, Menu } from 'lucide-react'
@@ -27,6 +27,12 @@ export default function MainLayout() {
   const [bioInput, setBioInput] = useState(profile?.bio ?? '')
   const [showLogin, setShowLogin] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
+  const [customCursor, setCustomCursor] = useState(() => localStorage.getItem('customCursor') === 'on')
+
+  useEffect(() => {
+    document.body.classList.toggle('custom-cursor', customCursor)
+    localStorage.setItem('customCursor', customCursor ? 'on' : 'off')
+  }, [customCursor])
 
   async function handleSignOut() { await signOut(); navigate('/main') }
 
@@ -70,6 +76,15 @@ export default function MainLayout() {
               <ImagePlay size={14} />
             </NavLink>
           )}
+          {/* 커서 토글 */}
+          <button
+            onClick={() => setCustomCursor(v => !v)}
+            className="hidden md:block text-xs transition-colors"
+            style={{ fontFamily: 'var(--font-title)', color: customCursor ? 'white' : 'rgba(255,255,255,0.25)', letterSpacing: '0.1em' }}
+            title="커스텀 커서 on/off"
+          >
+            ✦
+          </button>
           {user && (
             <button onClick={handleSignOut} className="text-white/30 hover:text-white/70 transition-colors hidden md:block" title="로그아웃">
               <LogOut size={14} />
