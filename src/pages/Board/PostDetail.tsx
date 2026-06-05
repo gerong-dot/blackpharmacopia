@@ -111,7 +111,7 @@ export default function PostDetail() {
 
       {/* 제목 */}
       {post.category !== 'general' && (
-        <span className="inline-block text-xs px-2 py-0.5 rounded-sm mb-2" style={{ background: 'var(--char-red)', color: 'white', fontFamily: 'var(--font-title)' }}>
+        <span className="inline-block text-xs px-2 py-0.5 rounded-sm mb-2" style={{ background: 'var(--char-red)', color: 'white', fontFamily: "'Playfair Display', 'Nanum Myeongjo', serif" }}>
           {post.category}
         </span>
       )}
