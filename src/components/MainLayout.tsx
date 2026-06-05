@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
-import { LogOut, ImagePlay, Camera, Pencil, Check, X } from 'lucide-react'
+import { LogOut, ImagePlay, Camera, Pencil, Check, X, Menu } from 'lucide-react'
 import MusicPlayer from './MusicPlayer'
 import WindowCard from './WindowCard'
 import LoginModal from './LoginModal'
+import MobileDrawer from './MobileDrawer'
 import { uploadImage } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 import MiniGuestbook from './MiniGuestbook'
@@ -25,6 +26,7 @@ export default function MainLayout() {
   const [editingBio, setEditingBio] = useState(false)
   const [bioInput, setBioInput] = useState(profile?.bio ?? '')
   const [showLogin, setShowLogin] = useState(false)
+  const [showDrawer, setShowDrawer] = useState(false)
 
   async function handleSignOut() { await signOut(); navigate('/main') }
 
@@ -51,6 +53,7 @@ export default function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--dark)' }}>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showDrawer && <MobileDrawer onClose={() => setShowDrawer(false)} />}
 
       {/* 상단 헤더 */}
       <header className="shrink-0 flex items-center justify-between px-6 py-3 border-b" style={{ borderColor: 'rgba(195,195,195,0.1)', background: 'rgba(26,32,53,0.98)' }}>
@@ -61,16 +64,21 @@ export default function MainLayout() {
           </span>
           <span className="text-white/20 text-xs">✦</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {profile?.is_admin && (
-            <NavLink to="/main/admin/images" className="text-white/30 hover:text-white/70 transition-colors" title="이미지 관리">
+            <NavLink to="/main/admin/images" className="text-white/30 hover:text-white/70 transition-colors hidden md:block" title="이미지 관리">
               <ImagePlay size={14} />
             </NavLink>
           )}
-          {user
-            ? <button onClick={handleSignOut} className="text-white/30 hover:text-white/70 transition-colors text-xs tracking-widest" style={{ fontFamily: 'var(--font-title)' }} title="로그아웃"><LogOut size={14} /></button>
-            : null
-          }
+          {user && (
+            <button onClick={handleSignOut} className="text-white/30 hover:text-white/70 transition-colors hidden md:block" title="로그아웃">
+              <LogOut size={14} />
+            </button>
+          )}
+          {/* 모바일 햄버거 */}
+          <button onClick={() => setShowDrawer(true)} className="md:hidden text-white/50 hover:text-white transition-colors">
+            <Menu size={20} />
+          </button>
         </div>
       </header>
 

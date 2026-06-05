@@ -17,12 +17,15 @@ export default function PostEditor() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('general')
+  const [boardSlug, setBoardSlug] = useState('general')
+  const [boards, setBoards] = useState<{id: string; name: string; slug: string}[]>([])
   const [isPrivate, setIsPrivate] = useState(false)
   const [mode, setMode] = useState<EditorMode>('rich')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    supabase.from('boards').select('*').order('position').then(({ data }) => setBoards(data ?? []))
     if (!isEdit) return
     async function load() {
       const { data } = await supabase.from('posts').select('*').eq('id', id).single()
@@ -31,6 +34,7 @@ export default function PostEditor() {
         setContent(data.content)
         setIsPrivate(data.is_private ?? false)
         setCategory(data.category)
+        setBoardSlug(data.board_slug ?? 'general')
       }
     }
     load()
@@ -48,14 +52,14 @@ export default function PostEditor() {
     if (isEdit) {
       const { error } = await supabase
         .from('posts')
-        .update({ title, content, category, is_private: isPrivate, updated_at: new Date().toISOString() })
+        .update({ title, content, category, board_slug: boardSlug, is_private: isPrivate, updated_at: new Date().toISOString() })
         .eq('id', id)
       if (error) { setError(error.message); setSaving(false); return }
       navigate(`/main/board/${id}`)
     } else {
       const { data, error } = await supabase
         .from('posts')
-        .insert({ title, content, category, is_private: isPrivate, author_id: profile?.id })
+        .insert({ title, content, category, board_slug: boardSlug, is_private: isPrivate, author_id: profile?.id })
         .select()
         .single()
       if (error) { setError(error.message); setSaving(false); return }
@@ -96,6 +100,19 @@ export default function PostEditor() {
       </h1>
 
       <form onSubmit={handleSave} className="flex flex-col gap-4">
+        {/* 게시판 선택 */}
+        {boards.length > 1 && (
+          <div className="flex gap-2 flex-wrap">
+            {boards.map(b => (
+              <button key={b.slug} type="button" onClick={() => setBoardSlug(b.slug)}
+                className="px-3 py-1 rounded-sm text-xs transition-all"
+                style={{ fontFamily: 'var(--font-title)', background: boardSlug === b.slug ? 'var(--char-blue)' : 'transparent', color: boardSlug === b.slug ? 'white' : 'var(--char-blue)', border: '1px solid rgba(0,17,60,0.2)', opacity: boardSlug === b.slug ? 1 : 0.5 }}>
+                {b.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* 제목 + 카테고리 */}
         <div className="flex gap-3">
           <input
