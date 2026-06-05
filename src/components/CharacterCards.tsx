@@ -17,7 +17,7 @@ const DEFAULT_CHARS: Character[] = [
   { id: 'ernest', name: '어니스트 칼더', subtitle: 'Ernest Calder', description: '', imageUrl: '', tags: [] },
 ]
 
-export default function CharacterCards() {
+export default function CharacterCards({ index }: { index?: number }) {
   const [chars, setChars] = useState<Character[]>(DEFAULT_CHARS)
   const [editing, setEditing] = useState<string | null>(null)
   const [draft, setDraft] = useState<Character | null>(null)
@@ -60,16 +60,21 @@ export default function CharacterCards() {
     e.target.value = ''
   }
 
+  // 단일 카드 모드 (index 지정 시)
+  const displayChars = index !== undefined ? [chars[index]].filter(Boolean) : chars
+
   return (
     <div className="w-full">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(0,17,60,0.15))' }} />
-        <span className="text-xs tracking-[0.3em] opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>CHARACTERS</span>
-        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, transparent, rgba(0,17,60,0.15))' }} />
-      </div>
+      {index === undefined && (
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(0,17,60,0.15))' }} />
+          <span className="text-xs tracking-[0.3em] opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>CHARACTERS</span>
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, transparent, rgba(0,17,60,0.15))' }} />
+        </div>
+      )}
 
-      <div className="grid grid-cols-2 gap-3">
-        {chars.map(char => (
+      <div className={index !== undefined ? '' : 'grid grid-cols-2 gap-3'}>
+        {displayChars.map(char => (
           <div key={char.id} className="relative group rounded-sm overflow-hidden border flex flex-col" style={{ borderColor: 'rgba(0,17,60,0.12)', background: 'rgba(0,17,60,0.02)', minHeight: '200px' }}>
             {editing === char.id && draft ? (
               /* 편집 모드 */
