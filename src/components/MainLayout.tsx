@@ -28,7 +28,7 @@ export default function MainLayout() {
   const [bioInput, setBioInput] = useState(profile?.bio ?? '')
   const [showLogin, setShowLogin] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
-  const [customCursor, setCustomCursor] = useState(() => localStorage.getItem('customCursor') === 'on')
+  const [customCursor, setCustomCursor] = useState(() => localStorage.getItem('customCursor') !== 'off')
 
   useEffect(() => {
     document.body.classList.toggle('custom-cursor', customCursor)
