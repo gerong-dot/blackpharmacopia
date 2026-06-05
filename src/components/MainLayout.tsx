@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
 import { LogOut, ImagePlay, Camera, Pencil, Check, X, Menu } from 'lucide-react'
 import MusicPlayer from './MusicPlayer'
+import CursorFollower from './CursorFollower'
 import WindowCard from './WindowCard'
 import LoginModal from './LoginModal'
 import MobileDrawer from './MobileDrawer'
@@ -217,6 +218,7 @@ export default function MainLayout() {
       </nav>
 
       <MusicPlayer />
+      <CursorFollower enabled={customCursor} />
     </div>
   )
 }
