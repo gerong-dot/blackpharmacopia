@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useCallback } from 'react'
 import { Bold, Italic, Heading2, Heading3, Link, Image, List, AlignLeft } from 'lucide-react'
 
 type Props = {
@@ -8,6 +8,16 @@ type Props = {
 
 export default function RichEditor({ value, onChange }: Props) {
   const taRef = useRef<HTMLTextAreaElement>(null)
+  const composing = useRef(false)
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (!composing.current) onChange(e.target.value)
+  }, [onChange])
+
+  const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLTextAreaElement>) => {
+    composing.current = false
+    onChange(e.currentTarget.value)
+  }, [onChange])
 
   function wrap(before: string, after: string, placeholder = '') {
     const ta = taRef.current
@@ -101,7 +111,9 @@ export default function RichEditor({ value, onChange }: Props) {
         ref={taRef}
         rows={20}
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={handleChange}
+        onCompositionStart={() => { composing.current = true }}
+        onCompositionEnd={handleCompositionEnd}
         placeholder={`<h2>제목</h2>\n<p>내용을 입력하세요...</p>\n\n툴바 버튼으로 서식을 삽입하거나 HTML을 직접 작성하세요.`}
         className="w-full px-4 py-3 outline-none bg-white text-sm"
         style={{

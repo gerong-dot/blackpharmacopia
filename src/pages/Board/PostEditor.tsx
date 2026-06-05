@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import DOMPurify from 'dompurify'
 import { supabase } from '../../lib/supabase'
@@ -26,6 +26,9 @@ export default function PostEditor() {
   const [mode, setMode] = useState<EditorMode>('rich')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const composingTitle = useRef(false)
+  const composingCategory = useRef(false)
+  const composingHtml = useRef(false)
 
   useEffect(() => {
     // site_settings에서 게시판 목록 불러오기
@@ -142,7 +145,9 @@ export default function PostEditor() {
             type="text"
             placeholder="제목"
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={e => { if (!composingTitle.current) setTitle(e.target.value) }}
+            onCompositionStart={() => { composingTitle.current = true }}
+            onCompositionEnd={e => { composingTitle.current = false; setTitle(e.currentTarget.value) }}
           />
           <input
             className={inputBase + ' w-36'}
@@ -150,7 +155,9 @@ export default function PostEditor() {
             type="text"
             placeholder="카테고리"
             value={category}
-            onChange={e => setCategory(e.target.value)}
+            onChange={e => { if (!composingCategory.current) setCategory(e.target.value) }}
+            onCompositionStart={() => { composingCategory.current = true }}
+            onCompositionEnd={e => { composingCategory.current = false; setCategory(e.currentTarget.value) }}
           />
         </div>
 
@@ -188,7 +195,9 @@ export default function PostEditor() {
           <textarea
             rows={24}
             value={content}
-            onChange={e => setContent(e.target.value)}
+            onChange={e => { if (!composingHtml.current) setContent(e.target.value) }}
+            onCompositionStart={() => { composingHtml.current = true }}
+            onCompositionEnd={e => { composingHtml.current = false; setContent(e.currentTarget.value) }}
             placeholder={`<h2>제목</h2>\n<p>내용을 입력하세요...</p>\n<img src="..." alt="이미지" />`}
             className="w-full px-4 py-3 rounded border outline-none bg-white"
             style={{
