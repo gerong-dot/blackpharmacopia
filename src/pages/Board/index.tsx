@@ -8,9 +8,7 @@ import { PenSquare, Search, Lock, X, Plus, ChevronRight, LayoutList, LayoutGrid 
 
 type Board = { id: string; name: string; slug: string; description: string }
 
-const DEFAULT_BOARDS: Board[] = [
-  { id: 'general', name: '일반', slug: 'general', description: '자유롭게 이야기해요' },
-]
+const DEFAULT_BOARDS: Board[] = []
 
 async function loadBoards(): Promise<Board[]> {
   const raw = await getSiteSetting('boards_json')
