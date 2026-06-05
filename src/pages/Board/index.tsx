@@ -3,9 +3,24 @@ import { Link, useSearchParams } from 'react-router'
 import { supabase } from '../../lib/supabase'
 import type { Post } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { getSiteSetting, setSiteSetting } from '../../lib/storage'
 import { PenSquare, Search, Lock, X, Plus, ChevronRight, LayoutList, LayoutGrid } from 'lucide-react'
 
-type Board = { id: string; name: string; slug: string; description: string; position: number }
+type Board = { id: string; name: string; slug: string; description: string }
+
+const DEFAULT_BOARDS: Board[] = [
+  { id: 'general', name: '일반', slug: 'general', description: '자유롭게 이야기해요' },
+]
+
+async function loadBoards(): Promise<Board[]> {
+  const raw = await getSiteSetting('boards_json')
+  if (!raw) return DEFAULT_BOARDS
+  try { return JSON.parse(raw) } catch { return DEFAULT_BOARDS }
+}
+
+async function saveBoards(boards: Board[]) {
+  await setSiteSetting('boards_json', JSON.stringify(boards))
+}
 
 export default function BoardPage() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -14,6 +29,7 @@ export default function BoardPage() {
   const [search, setSearch] = useState('')
   const [view, setView] = useState<'list' | 'board'>('board')
   const [newBoardName, setNewBoardName] = useState('')
+  const [newBoardDesc, setNewBoardDesc] = useState('')
   const [addingBoard, setAddingBoard] = useState(false)
   const { profile } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -22,12 +38,12 @@ export default function BoardPage() {
   useEffect(() => { fetchAll() }, [])
 
   async function fetchAll() {
-    const [postsRes, boardsRes] = await Promise.all([
+    const [postsRes, loadedBoards] = await Promise.all([
       supabase.from('posts').select('*').order('created_at', { ascending: false }),
-      supabase.from('boards').select('*').order('position'),
+      loadBoards(),
     ])
     setPosts(postsRes.data ?? [])
-    setBoards(boardsRes.data ?? [])
+    setBoards(loadedBoards)
     setLoading(false)
   }
 
@@ -35,46 +51,38 @@ export default function BoardPage() {
     e.preventDefault()
     if (!newBoardName.trim()) return
     const name = newBoardName.trim()
-    const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `board-${Date.now()}`
-    const tempBoard = { id: `temp-${Date.now()}`, name, slug, description: '', position: boards.length }
-
-    // 낙관적 업데이트 — 즉시 목록에 표시
-    setBoards(prev => [...prev, tempBoard])
+    const slug = `board-${Date.now()}`
+    const newBoard: Board = { id: slug, name, slug, description: newBoardDesc.trim() }
+    const next = [...boards, newBoard]
+    setBoards(next)
     setNewBoardName('')
+    setNewBoardDesc('')
     setAddingBoard(false)
-
-    const { data, error } = await supabase
-      .from('boards')
-      .insert({ name, slug, position: boards.length })
-      .select()
-      .single()
-
-    if (error) {
-      // 실패 시 롤백
-      setBoards(prev => prev.filter(b => b.id !== tempBoard.id))
-      alert('게시판 추가 실패: ' + error.message)
-    } else if (data) {
-      // 임시 항목을 실제 DB 항목으로 교체
-      setBoards(prev => prev.map(b => b.id === tempBoard.id ? data : b))
-    }
+    await saveBoards(next)
   }
 
   async function handleDeleteBoard(slug: string) {
-    if (!confirm('게시판을 삭제하시겠습니까? (글은 유지됩니다)')) return
-    setBoards(prev => prev.filter(b => b.slug !== slug))
-    await supabase.from('boards').delete().eq('slug', slug)
+    if (!confirm('게시판을 삭제하시겠습니까?')) return
+    const next = boards.filter(b => b.slug !== slug)
+    setBoards(next)
+    await saveBoards(next)
     if (activeSlug === slug) setSearchParams({})
-    fetchAll()
   }
 
-  const filtered = posts.filter(p => {
-    const matchBoard = !activeSlug || (p as Post & { board_slug?: string }).board_slug === activeSlug || (activeSlug === 'general' && !(p as Post & { board_slug?: string }).board_slug)
-    const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase())
-    return matchBoard && matchSearch
-  })
+  const postsByBoard = (slug: string) =>
+    posts.filter(p => {
+      const ps = (p as Post & { board_slug?: string }).board_slug
+      if (slug === 'general') return !ps || ps === 'general'
+      return ps === slug
+    })
 
-  const postCountBySlug = (slug: string) =>
-    posts.filter(p => (p as Post & { board_slug?: string }).board_slug === slug || (!((p as Post & { board_slug?: string }).board_slug) && slug === 'general')).length
+  const filtered = postsByBoard(activeSlug || '').filter(p =>
+    !search || p.title.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const allFiltered = !activeSlug
+    ? posts.filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()))
+    : filtered
 
   if (loading) return <div className="py-20 text-center opacity-40" style={{ fontFamily: 'var(--font-deco)', fontSize: '1.5rem', color: 'var(--char-blue)' }}>loading...</div>
 
@@ -84,7 +92,7 @@ export default function BoardPage() {
       <div className="flex items-center justify-between">
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: 'var(--char-blue)' }}>Diary</h1>
         <div className="flex items-center gap-2">
-          <button onClick={() => setView(v => v === 'list' ? 'board' : 'list')} className="p-1.5 rounded-sm opacity-40 hover:opacity-70 transition-opacity" style={{ color: 'var(--char-blue)' }}>
+          <button onClick={() => setView(v => v === 'list' ? 'board' : 'list')} className="p-1.5 rounded-sm opacity-40 hover:opacity-70" style={{ color: 'var(--char-blue)' }}>
             {view === 'board' ? <LayoutList size={16} /> : <LayoutGrid size={16} />}
           </button>
           {profile?.is_admin && (
@@ -98,76 +106,93 @@ export default function BoardPage() {
       {/* 게시판 목록 뷰 */}
       {view === 'board' && !activeSlug ? (
         <div className="flex flex-col gap-2">
-          {/* 게시판 카드들 */}
           {boards.map(board => (
-            <div key={board.id} className="group flex items-center justify-between px-4 py-3 rounded-sm border hover:border-opacity-30 transition-all cursor-pointer"
+            <div key={board.id}
+              className="group flex items-center justify-between px-4 py-3 rounded-sm border cursor-pointer hover:bg-black/5 transition-colors"
               style={{ borderColor: 'rgba(0,17,60,0.12)', background: 'rgba(0,17,60,0.02)' }}
               onClick={() => setSearchParams({ b: board.slug })}
             >
               <div className="flex items-center gap-3">
-                <div className="w-1.5 h-8 rounded-full" style={{ background: 'var(--char-red)', opacity: 0.6 }} />
+                <div className="w-1 h-8 rounded-full" style={{ background: 'var(--char-red)', opacity: 0.5 }} />
                 <div>
                   <p className="text-sm font-semibold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}>{board.name}</p>
                   {board.description && <p className="text-xs opacity-40" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{board.description}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs opacity-30" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>{postCountBySlug(board.slug)}개</span>
-                {profile?.is_admin && (
-                  <button onClick={e => { e.stopPropagation(); handleDeleteBoard(board.slug) }} className="opacity-0 group-hover:opacity-30 hover:!opacity-70 transition-opacity text-xs" style={{ color: 'var(--char-red)' }}>✕</button>
+                <span className="text-xs opacity-30" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+                  {postsByBoard(board.slug).length}개
+                </span>
+                {profile?.is_admin && board.slug !== 'general' && (
+                  <button onClick={e => { e.stopPropagation(); handleDeleteBoard(board.slug) }}
+                    className="opacity-0 group-hover:opacity-30 hover:!opacity-70 transition-opacity text-xs"
+                    style={{ color: 'var(--char-red)' }}>✕</button>
                 )}
                 <ChevronRight size={14} className="opacity-20" style={{ color: 'var(--char-blue)' }} />
               </div>
             </div>
           ))}
 
-          {/* 게시판 추가 (관리자) */}
+          {/* 게시판 추가 */}
           {profile?.is_admin && (
             addingBoard ? (
-              <form onSubmit={handleAddBoard} className="flex gap-2">
+              <form onSubmit={handleAddBoard} className="flex flex-col gap-2 p-3 rounded-sm border" style={{ borderColor: 'rgba(0,17,60,0.12)', borderStyle: 'dashed' }}>
                 <input
-                  className="flex-1 px-3 py-2 rounded-sm border text-sm outline-none"
+                  className="w-full px-3 py-1.5 rounded-sm border text-sm outline-none"
                   style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
                   placeholder="게시판 이름"
                   value={newBoardName}
                   onChange={e => setNewBoardName(e.target.value)}
                   autoFocus
                 />
-                <button type="submit" className="px-3 py-2 rounded-sm text-xs text-white" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>추가</button>
-                <button type="button" onClick={() => setAddingBoard(false)} className="px-3 py-2 rounded-sm text-xs opacity-50" style={{ border: '1px solid rgba(0,17,60,0.15)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>취소</button>
+                <input
+                  className="w-full px-3 py-1.5 rounded-sm border text-sm outline-none"
+                  style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
+                  placeholder="설명 (선택)"
+                  value={newBoardDesc}
+                  onChange={e => setNewBoardDesc(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <button type="submit" className="px-4 py-1.5 rounded-sm text-xs text-white" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>추가</button>
+                  <button type="button" onClick={() => setAddingBoard(false)} className="px-4 py-1.5 rounded-sm text-xs opacity-50" style={{ border: '1px solid rgba(0,17,60,0.15)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>취소</button>
+                </div>
               </form>
             ) : (
-              <button onClick={() => setAddingBoard(true)} className="flex items-center gap-1.5 px-4 py-3 rounded-sm border text-xs opacity-40 hover:opacity-70 transition-opacity"
+              <button onClick={() => setAddingBoard(true)}
+                className="flex items-center gap-1.5 px-4 py-3 rounded-sm border text-xs opacity-40 hover:opacity-70 transition-opacity"
                 style={{ borderColor: 'rgba(0,17,60,0.1)', borderStyle: 'dashed', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
                 <Plus size={12} /> 게시판 추가
               </button>
             )
           )}
 
-          {/* 전체 최신글 미리보기 */}
+          {/* 최근 글 */}
           {posts.length > 0 && (
             <div className="mt-2">
               <p className="text-xs opacity-30 mb-2 tracking-widest" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>RECENT</p>
               {posts.slice(0, 5).map(post => (
-                <Link key={post.id} to={`/main/board/${post.id}`} className="flex items-center justify-between py-2 border-b gap-2 hover:opacity-70 transition-opacity" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
+                <Link key={post.id} to={`/main/board/${post.id}`}
+                  className="flex items-center justify-between py-2 border-b gap-2 hover:opacity-70 transition-opacity"
+                  style={{ borderColor: 'rgba(0,17,60,0.07)' }}>
                   <span className="truncate text-xs" style={{ fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}>{post.title}</span>
-                  <span className="text-xs opacity-30 shrink-0" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{new Date(post.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
+                  <span className="text-xs opacity-30 shrink-0" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
+                    {new Date(post.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                  </span>
                 </Link>
               ))}
             </div>
           )}
         </div>
       ) : (
-        /* 게시글 목록 뷰 */
+        /* 글 목록 */
         <div className="flex flex-col gap-3">
-          {/* 브레드크럼 + 검색 */}
           <div className="flex items-center gap-2">
             {activeSlug && (
-              <button onClick={() => setSearchParams({})} className="flex items-center gap-1 text-xs opacity-50 hover:opacity-80 transition-opacity" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
-                ← 게시판 목록
+              <button onClick={() => setSearchParams({})} className="text-xs opacity-50 hover:opacity-80 transition-opacity" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+                ← 목록
               </button>
             )}
-            {activeSlug && <span className="text-xs opacity-20 mx-1" style={{ color: 'var(--char-blue)' }}>/</span>}
+            {activeSlug && <span className="text-xs opacity-20">/</span>}
             {activeSlug && (
               <span className="text-xs font-semibold" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
                 {boards.find(b => b.slug === activeSlug)?.name ?? activeSlug}
@@ -175,7 +200,6 @@ export default function BoardPage() {
             )}
           </div>
 
-          {/* 검색 */}
           <div className="relative">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" style={{ color: 'var(--char-blue)' }} />
             <input
@@ -188,14 +212,13 @@ export default function BoardPage() {
             {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-60"><X size={13} style={{ color: 'var(--char-blue)' }} /></button>}
           </div>
 
-          {/* 글 목록 */}
-          {filtered.length === 0 ? (
+          {allFiltered.length === 0 ? (
             <p className="text-center py-12 opacity-30 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
               {search ? '검색 결과가 없습니다' : '아직 게시글이 없습니다'}
             </p>
           ) : (
             <ul className="flex flex-col border-t" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
-              {filtered.map(post => (
+              {allFiltered.map(post => (
                 <li key={post.id}>
                   <Link to={`/main/board/${post.id}`}
                     className="flex items-center justify-between py-3 px-1 border-b gap-3 hover:bg-black/5 rounded transition-colors"
