@@ -9,6 +9,8 @@ export type Profile = {
   id: string
   username: string
   is_admin: boolean
+  avatar_url: string
+  bio: string
   created_at: string
 }
 
