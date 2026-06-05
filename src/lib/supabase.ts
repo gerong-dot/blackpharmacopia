@@ -19,6 +19,8 @@ export type Post = {
   title: string
   content: string
   category: string
+  board_slug: string
+  is_private: boolean
   author_id: string | null
   created_at: string
   updated_at: string
