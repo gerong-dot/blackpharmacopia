@@ -175,6 +175,8 @@ export default function MainLayout() {
           </WindowCard>
 
           <MiniGuestbook />
+
+          {/* 채팅 하단 이미지 슬롯 */}
           <PanelImage settingKey="left_panel_bottom" aspectClass="aspect-square" />
         </div>
 
