@@ -55,23 +55,23 @@ export default function MainScreen() {
           </p>
 
           <div className="text-center">
-            <div className="flex items-baseline justify-center gap-0.5">
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--char-blue)', opacity: 0.4 }}>
+            <div className="flex items-baseline justify-center gap-1">
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: 'var(--char-blue)', opacity: 0.4 }}>
                 D +
               </span>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'var(--char-blue)', lineHeight: 1, fontWeight: 700 }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 7vw, 5rem)', color: 'var(--char-blue)', lineHeight: 1, fontWeight: 700 }}>
                 {Math.abs(dday)}
               </span>
             </div>
 
-            <div className="flex items-center justify-center gap-1 mt-1">
+            <div className="flex items-center justify-center gap-1.5 mt-2">
               {[time.h, time.m, time.s].map((v, i) => (
-                <div key={i} className="flex items-center gap-1">
+                <div key={i} className="flex items-center gap-1.5">
                   <div className="flex flex-col items-center">
-                    <span style={{ fontFamily: 'var(--font-title)', fontSize: '0.85rem', color: 'var(--char-blue)', fontWeight: 600 }}>{v}</span>
-                    <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', opacity: 0.2, fontSize: '0.5rem' }}>{['HH','MM','SS'][i]}</span>
+                    <span style={{ fontFamily: 'var(--font-title)', fontSize: '1.1rem', color: 'var(--char-blue)', fontWeight: 600 }}>{v}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', opacity: 0.2, fontSize: '0.55rem' }}>{['HH','MM','SS'][i]}</span>
                   </div>
-                  {i < 2 && <span className="opacity-20 mb-2.5" style={{ color: 'var(--char-blue)', fontSize: '0.7rem' }}>:</span>}
+                  {i < 2 && <span className="opacity-20 mb-3" style={{ color: 'var(--char-blue)', fontSize: '0.9rem' }}>:</span>}
                 </div>
               ))}
             </div>
