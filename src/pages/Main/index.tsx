@@ -19,7 +19,7 @@ function getTimeLeft() {
 }
 
 export default function MainScreen() {
-  const { url: mainBanner, position: bannerPos } = useSiteImage('main_banner')
+  const { url: mainBanner } = useSiteImage('main_banner')
   const [dday, setDday] = useState(getDday)
   const [time, setTime] = useState(getTimeLeft)
 
