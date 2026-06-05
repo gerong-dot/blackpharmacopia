@@ -30,16 +30,26 @@ export async function uploadImage(file: File, path: string): Promise<string> {
 }
 
 export async function getSiteSetting(key: string): Promise<string> {
-  const { data } = await supabase
-    .from('site_settings')
-    .select('value')
-    .eq('key', key)
-    .single()
+  try {
+    const res = await fetch(`/api/settings?key=${encodeURIComponent(key)}`)
+    if (res.ok) {
+      const { value } = await res.json()
+      return value ?? ''
+    }
+  } catch {}
+  // 폴백: supabase 직접 조회
+  const { data } = await supabase.from('site_settings').select('value').eq('key', key).single()
   return data?.value ?? ''
 }
 
 export async function setSiteSetting(key: string, value: string) {
-  await supabase
-    .from('site_settings')
-    .upsert({ key, value, updated_at: new Date().toISOString() })
+  const res = await fetch('/api/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, value }),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? '저장 실패')
+  }
 }
