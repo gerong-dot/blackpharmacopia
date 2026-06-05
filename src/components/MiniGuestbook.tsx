@@ -44,7 +44,7 @@ export default function MiniGuestbook() {
   }
 
   return (
-    <WindowCard title="CHAT" dark style={{ flex: 1 }} noPad>
+    <WindowCard title="CHAT" dark style={{ flexShrink: 0 }} noPad>
       {/* 메시지 목록 */}
       <div className="flex flex-col gap-2 p-3 overflow-y-auto" style={{ maxHeight: '200px', minHeight: '120px' }}>
         {entries.length === 0 && (
