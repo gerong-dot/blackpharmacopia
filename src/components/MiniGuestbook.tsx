@@ -46,7 +46,7 @@ export default function MiniGuestbook() {
   return (
     <WindowCard title="CHAT" dark style={{ flex: 1 }} noPad>
       {/* 메시지 목록 */}
-      <div className="flex flex-col gap-2 p-3 overflow-y-auto" style={{ maxHeight: '320px', minHeight: '200px' }}>
+      <div className="flex flex-col gap-2 p-3 overflow-y-auto" style={{ maxHeight: '200px', minHeight: '120px' }}>
         {entries.length === 0 && (
           <p className="text-center text-xs opacity-30 mt-4" style={{ fontFamily: 'var(--font-sans)' }}>
             첫 메시지를 남겨보세요

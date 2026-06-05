@@ -15,7 +15,23 @@
   --font-deco: 'Beau Rivage', cursive;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 텍스트 선택 방지 (입력창 제외) */
+body, div, span, p, h1, h2, h3, h4, h5, h6, a, button, nav, header, footer {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 입력창은 선택 허용 */
+input, textarea, .post-content, [contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+}
 
 /* 커스텀 커서 — 실제 커서 숨기고 GIF로 대체 */
 body.custom-cursor,

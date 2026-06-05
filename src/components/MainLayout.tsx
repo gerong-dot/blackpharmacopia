@@ -10,6 +10,7 @@ import MobileDrawer from './MobileDrawer'
 import { uploadImage } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 import MiniGuestbook from './MiniGuestbook'
+import PanelImage from './PanelImage'
 
 const tabs = [
   { to: '/main', label: 'HOME', end: true },
@@ -174,6 +175,7 @@ export default function MainLayout() {
           </WindowCard>
 
           <MiniGuestbook />
+          <PanelImage settingKey="left_panel_bottom" aspectClass="aspect-square" />
         </div>
 
         {/* 오른쪽 패널 */}

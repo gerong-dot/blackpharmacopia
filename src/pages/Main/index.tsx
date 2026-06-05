@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSiteImage } from '../../hooks/useSiteImage'
 import CharacterCards from '../../components/CharacterCards'
 import RetroBadges from '../../components/RetrodBadges'
+import PanelImage from '../../components/PanelImage'
 
 const START_DATE = new Date('2026-01-07T00:00:00')
 
@@ -88,6 +89,9 @@ export default function MainScreen() {
           <p className="text-center leading-relaxed opacity-50" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.8rem', letterSpacing: '0.06em' }}>
             틀린다는 것은<br/>또 다른 결과값의<br/>도출이랍니다.
           </p>
+
+          {/* 센터 하단 이미지 슬롯 */}
+          <PanelImage settingKey="dday_bottom_image" aspectClass="aspect-square" />
         </div>
 
         {/* 오른쪽: 어니스트 */}
