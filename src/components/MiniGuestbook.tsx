@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabase'
 import type { GuestbookEntry } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { Send, ImagePlus, Loader } from 'lucide-react'
-import WindowCard from './WindowCard'
 import { getSiteSetting, setSiteSetting, uploadImage } from '../lib/storage'
 
 export default function MiniGuestbook() {
@@ -54,11 +53,24 @@ export default function MiniGuestbook() {
   }
 
   return (
-    <WindowCard title="CHAT" dark style={{ flexShrink: 0 }} noPad>
-      {/* 메시지 목록 */}
-      <div className="flex flex-col gap-2 p-3 overflow-y-auto" style={{ height: '130px' }}>
+    <div className="rounded-sm overflow-hidden" style={{ background: 'rgba(8,13,26,0.95)', border: '1px solid rgba(195,195,195,0.12)', boxShadow: '0 4px 24px rgba(0,0,0,0.5)' }}>
+
+      {/* 헤더 */}
+      <div className="gothic-header">
+        <div className="flex gap-1.5">
+          <div className="w-2 h-2 rounded-full" style={{ background: 'var(--char-red)' }} />
+          <div className="w-2 h-2 rounded-full bg-white/20" />
+          <div className="w-2 h-2 rounded-full bg-white/20" />
+        </div>
+        <span className="text-white/70 text-xs tracking-[0.2em] flex-1 text-center" style={{ fontFamily: 'var(--font-title)' }}>
+          — CHAT —
+        </span>
+      </div>
+
+      {/* 메시지 목록 — 고정 높이 */}
+      <div className="flex flex-col gap-2 p-3 overflow-y-auto" style={{ height: '120px' }}>
         {entries.length === 0 && (
-          <p className="text-center text-xs opacity-30 mt-4" style={{ fontFamily: 'var(--font-sans)' }}>
+          <p className="text-center text-xs opacity-30 mt-3" style={{ fontFamily: 'var(--font-sans)', color: 'rgba(195,195,195,0.5)' }}>
             첫 메시지를 남겨보세요
           </p>
         )}
@@ -82,10 +94,10 @@ export default function MiniGuestbook() {
       </div>
 
       {/* 입력창 */}
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: 'rgba(195,195,195,0.08)' }}>
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 px-3 py-2" style={{ borderTop: '1px solid rgba(195,195,195,0.08)' }}>
         <input
-          className="flex-1 text-xs px-3 py-1.5 rounded-full outline-none border"
-          style={{ borderColor: 'rgba(195,195,195,0.1)', fontFamily: 'var(--font-sans)', color: 'rgba(195,195,195,0.8)', background: 'rgba(195,195,195,0.05)' }}
+          className="flex-1 text-xs px-3 py-1.5 rounded-full"
+          style={{ borderColor: 'rgba(195,195,195,0.1)', border: '1px solid rgba(195,195,195,0.1)', fontFamily: 'var(--font-sans)', color: 'rgba(195,195,195,0.8)', background: 'rgba(195,195,195,0.05)', outline: 'none' }}
           placeholder="메시지..."
           value={text}
           onChange={e => setText(e.target.value)}
@@ -93,33 +105,47 @@ export default function MiniGuestbook() {
         />
         <button type="submit" disabled={submitting || !text.trim()}
           className="w-7 h-7 rounded-full flex items-center justify-center disabled:opacity-30"
-          style={{ background: 'var(--char-blue)' }}>
+          style={{ background: 'var(--char-blue)', flexShrink: 0 }}>
           <Send size={12} className="text-white" />
         </button>
       </form>
 
       {/* 이미지 슬롯 — 입력창 바로 아래 */}
       <div
-        className="relative group border-t overflow-hidden"
-        style={{ borderColor: 'rgba(195,195,195,0.08)', aspectRatio: '10/13', background: 'rgba(195,195,195,0.03)', cursor: profile?.is_admin ? 'pointer' : 'default' }}
+        className="relative group"
+        style={{
+          borderTop: '1px solid rgba(195,195,195,0.08)',
+          width: '100%',
+          paddingBottom: '130%',
+          background: 'rgba(195,195,195,0.03)',
+          cursor: profile?.is_admin ? 'pointer' : 'default',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
         onClick={() => profile?.is_admin && fileRef.current?.click()}
       >
-        {panelImg
-          ? <img src={panelImg} alt="" className="w-full h-full object-cover block" draggable={false} />
-          : profile?.is_admin && (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-1 opacity-25">
-                <ImagePlus size={20} className="text-white" />
-                <span className="text-white text-xs" style={{ fontFamily: 'var(--font-title)' }}>이미지 추가</span>
-              </div>
-            )
-        }
-        {profile?.is_admin && (
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            {uploading ? <Loader size={16} className="text-white animate-spin" /> : <span className="text-white text-xs" style={{ fontFamily: 'var(--font-title)' }}>클릭하여 업로드</span>}
-          </div>
-        )}
+        <div style={{ position: 'absolute', inset: 0 }}>
+          {panelImg ? (
+            <img src={panelImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} draggable={false} />
+          ) : profile?.is_admin ? (
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: 0.25 }}>
+              <ImagePlus size={22} color="white" />
+              <span style={{ color: 'white', fontSize: '0.7rem', fontFamily: 'var(--font-title)' }}>이미지 추가</span>
+            </div>
+          ) : null}
+
+          {profile?.is_admin && (
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              {uploading
+                ? <Loader size={18} color="white" className="animate-spin" />
+                : <span style={{ color: 'white', fontSize: '0.7rem', fontFamily: 'var(--font-title)' }}>클릭하여 업로드</span>
+              }
+            </div>
+          )}
+        </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
       </div>
-    </WindowCard>
+
+    </div>
   )
 }
