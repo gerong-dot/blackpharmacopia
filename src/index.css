@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --char-blue: #00113c;
+  --char-red: #800001;
+  --bg: #c3c3c3;
+
+  --font-serif: 'Hepta Slab', 'Noto Serif KR', serif;
+  --font-sans: 'IBM Plex Sans KR', sans-serif;
+  --font-display: 'Playfair Display', serif;
+  --font-title: 'Alumni Sans', sans-serif;
+  --font-deco: 'Beau Rivage', cursive;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--char-blue);
+  font-family: var(--font-sans);
+}
+
+/* 게시글 HTML 콘텐츠 렌더링 스타일 */
+.post-content h1 { font-size: 2rem; font-weight: 700; margin: 1.5rem 0 0.75rem; font-family: var(--font-serif); }
+.post-content h2 { font-size: 1.5rem; font-weight: 600; margin: 1.25rem 0 0.5rem; font-family: var(--font-serif); }
+.post-content h3 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+.post-content p  { margin: 0.75rem 0; line-height: 1.8; }
+.post-content a  { color: var(--char-red); text-decoration: underline; }
+.post-content img { max-width: 100%; border-radius: 4px; margin: 1rem 0; }
+.post-content ul, .post-content ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.post-content li { margin: 0.25rem 0; line-height: 1.7; }
+.post-content blockquote {
+  border-left: 3px solid var(--char-red);
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  background: rgba(0,17,60,0.05);
+  font-style: italic;
+}
+.post-content pre {
+  background: var(--char-blue);
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+}
+.post-content code {
+  background: rgba(0,17,60,0.1);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.875rem;
+}
+.post-content hr {
+  border: none;
+  border-top: 1px solid rgba(0,17,60,0.2);
+  margin: 1.5rem 0;
+}
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.post-content th, .post-content td {
+  border: 1px solid rgba(0,17,60,0.2);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.post-content th {
+  background: rgba(0,17,60,0.08);
+  font-weight: 600;
+}
