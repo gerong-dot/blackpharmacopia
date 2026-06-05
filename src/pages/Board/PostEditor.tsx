@@ -3,8 +3,11 @@ import { useParams, useNavigate } from 'react-router'
 import DOMPurify from 'dompurify'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { getSiteSetting } from '../../lib/storage'
 import { Eye, Code, PenLine } from 'lucide-react'
 import RichEditor from '../../components/RichEditor'
+
+type Board = { id: string; name: string; slug: string; description: string }
 
 type EditorMode = 'rich' | 'html' | 'preview'
 
@@ -17,15 +20,24 @@ export default function PostEditor() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('general')
-  const [boardSlug, setBoardSlug] = useState('general')
-  const [boards, setBoards] = useState<{id: string; name: string; slug: string}[]>([])
+  const [boardSlug, setBoardSlug] = useState('')
+  const [boards, setBoards] = useState<Board[]>([])
   const [isPrivate, setIsPrivate] = useState(false)
   const [mode, setMode] = useState<EditorMode>('rich')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    supabase.from('boards').select('*').order('position').then(({ data }) => setBoards(data ?? []))
+    // site_settings에서 게시판 목록 불러오기
+    getSiteSetting('boards_json').then(raw => {
+      if (raw) {
+        try {
+          const b: Board[] = JSON.parse(raw)
+          setBoards(b)
+          if (!isEdit && b.length > 0) setBoardSlug(b[0].slug)
+        } catch {}
+      }
+    })
     if (!isEdit) return
     async function load() {
       const { data } = await supabase.from('posts').select('*').eq('id', id).single()
@@ -101,15 +113,24 @@ export default function PostEditor() {
 
       <form onSubmit={handleSave} className="flex flex-col gap-4">
         {/* 게시판 선택 */}
-        {boards.length > 1 && (
-          <div className="flex gap-2 flex-wrap">
-            {boards.map(b => (
-              <button key={b.slug} type="button" onClick={() => setBoardSlug(b.slug)}
-                className="px-3 py-1 rounded-sm text-xs transition-all"
-                style={{ fontFamily: 'var(--font-title)', background: boardSlug === b.slug ? 'var(--char-blue)' : 'transparent', color: boardSlug === b.slug ? 'white' : 'var(--char-blue)', border: '1px solid rgba(0,17,60,0.2)', opacity: boardSlug === b.slug ? 1 : 0.5 }}>
-                {b.name}
-              </button>
-            ))}
+        {boards.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', letterSpacing: '0.1em' }}>BOARD</p>
+            <div className="flex gap-2 flex-wrap">
+              {boards.map(b => (
+                <button key={b.slug} type="button" onClick={() => setBoardSlug(b.slug)}
+                  className="px-3 py-1.5 rounded-sm text-xs transition-all"
+                  style={{
+                    fontFamily: 'var(--font-title)',
+                    background: boardSlug === b.slug ? 'var(--char-blue)' : 'transparent',
+                    color: boardSlug === b.slug ? 'white' : 'var(--char-blue)',
+                    border: '1px solid rgba(0,17,60,0.2)',
+                    opacity: boardSlug === b.slug ? 1 : 0.5,
+                  }}>
+                  {b.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
