@@ -32,11 +32,11 @@ export default function MainScreen() {
     <div className="flex flex-col gap-5 pb-4">
       {/* 배너 — 고정 높이로 수정 */}
       {mainBanner && (
-        <div className="w-full rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
+        <div className="w-full rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.1)', aspectRatio: '16 / 7' }}>
           <img
             src={mainBanner}
             alt="banner"
-            style={{ width: '100%', maxHeight: '280px', objectFit: 'contain', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 50%', display: 'block' }}
           />
         </div>
       )}
