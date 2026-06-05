@@ -9,6 +9,7 @@ import ImageUpload from '../../components/ImageUpload'
 export default function NoticePage() {
   const { profile } = useAuth()
   const [aboutImage, setAboutImage] = useState('')
+  const [aboutImagePos, setAboutImagePos] = useState('50% 50%')
   const [content, setContent] = useState('')
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
@@ -20,12 +21,22 @@ export default function NoticePage() {
     Promise.all([
       getSiteSetting('notice_content'),
       getSiteSetting('about_image'),
-    ]).then(([c, img]) => { setContent(c); setAboutImage(img); setLoading(false) })
+      getSiteSetting('about_image_pos'),
+    ]).then(([c, img, pos]) => {
+      setContent(c)
+      setAboutImage(img)
+      setAboutImagePos(pos || '50% 50%')
+      setLoading(false)
+    })
   }, [])
 
-  async function handleImageUploaded(url: string) {
+  async function handleImageUploaded(url: string, position?: string) {
     setAboutImage(url)
-    await setSiteSetting('about_image', url)
+    if (position) setAboutImagePos(position)
+    await Promise.all([
+      setSiteSetting('about_image', url),
+      position ? setSiteSetting('about_image_pos', position) : Promise.resolve(),
+    ])
   }
 
   async function handleSave() {
@@ -82,14 +93,15 @@ export default function NoticePage() {
           <ImageUpload
             storagePath="site/about-image"
             currentUrl={aboutImage}
+            currentPosition={aboutImagePos}
             onUploaded={handleImageUploaded}
-            label="공지 이미지 (클릭하여 업로드 · 크롭 가능)"
+            label="공지 이미지 (클릭하여 업로드 · 위치 조정 가능)"
             aspectClass="aspect-video"
           />
         </div>
       ) : aboutImage ? (
-        <div className="w-full rounded-sm overflow-hidden mb-6 border" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
-          <img src={aboutImage} alt="notice" className="w-full object-cover block" />
+        <div className="w-full rounded-sm overflow-hidden mb-6 border" style={{ borderColor: 'rgba(0,17,60,0.1)', maxHeight: '320px' }}>
+          <img src={aboutImage} alt="notice" className="w-full h-full block" style={{ objectFit: 'cover', objectPosition: aboutImagePos }} />
         </div>
       ) : null}
 
