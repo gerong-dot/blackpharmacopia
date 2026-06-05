@@ -7,8 +7,7 @@ import PanelImage from '../../components/PanelImage'
 const START_DATE = new Date('2026-01-07T00:00:00')
 
 function getDday() {
-  const days = Math.floor((new Date().getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24))
-  return Math.floor(days / 7)
+  return Math.floor((new Date().getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24)) + 1
 }
 
 function getTimeLeft() {
