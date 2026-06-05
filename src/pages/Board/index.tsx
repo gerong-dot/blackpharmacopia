@@ -34,15 +34,34 @@ export default function BoardPage() {
   async function handleAddBoard(e: React.FormEvent) {
     e.preventDefault()
     if (!newBoardName.trim()) return
-    const slug = newBoardName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `board-${Date.now()}`
-    await supabase.from('boards').insert({ name: newBoardName.trim(), slug, position: boards.length })
+    const name = newBoardName.trim()
+    const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `board-${Date.now()}`
+    const tempBoard = { id: `temp-${Date.now()}`, name, slug, description: '', position: boards.length }
+
+    // 낙관적 업데이트 — 즉시 목록에 표시
+    setBoards(prev => [...prev, tempBoard])
     setNewBoardName('')
     setAddingBoard(false)
-    fetchAll()
+
+    const { data, error } = await supabase
+      .from('boards')
+      .insert({ name, slug, position: boards.length })
+      .select()
+      .single()
+
+    if (error) {
+      // 실패 시 롤백
+      setBoards(prev => prev.filter(b => b.id !== tempBoard.id))
+      alert('게시판 추가 실패: ' + error.message)
+    } else if (data) {
+      // 임시 항목을 실제 DB 항목으로 교체
+      setBoards(prev => prev.map(b => b.id === tempBoard.id ? data : b))
+    }
   }
 
   async function handleDeleteBoard(slug: string) {
     if (!confirm('게시판을 삭제하시겠습니까? (글은 유지됩니다)')) return
+    setBoards(prev => prev.filter(b => b.slug !== slug))
     await supabase.from('boards').delete().eq('slug', slug)
     if (activeSlug === slug) setSearchParams({})
     fetchAll()
