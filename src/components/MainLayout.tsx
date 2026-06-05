@@ -10,9 +10,9 @@ import MiniGuestbook from './MiniGuestbook'
 
 const tabs = [
   { to: '/main', label: 'HOME', end: true },
+  { to: '/main/about', label: 'NOTICE' },
   { to: '/main/board', label: 'DIARY' },
   { to: '/main/gallery', label: 'GALLERY' },
-  { to: '/main/about', label: 'ABOUT' },
   { to: '/main/guestbook', label: 'GUEST' },
 ]
 
