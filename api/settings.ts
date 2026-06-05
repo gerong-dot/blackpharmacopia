@@ -11,6 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { key } = req.query
     if (!key) return res.status(400).json({ error: 'Missing key' })
     const { data } = await supabase.from('site_settings').select('value').eq('key', key).single()
+    res.setHeader('Cache-Control', 'no-store')
     return res.status(200).json({ value: data?.value ?? '' })
   }
 
