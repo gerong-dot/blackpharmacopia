@@ -15,7 +15,7 @@ export default function EnterPage() {
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
   const navigate = useNavigate()
-  const enterBg = useSiteImage('enter_bg')
+  const { url: enterBg, position: enterBgPos } = useSiteImage('enter_bg')
 
   useEffect(() => {
     if (user) navigate('/main', { replace: true })
@@ -68,8 +68,8 @@ export default function EnterPage() {
       {/* 배경 이미지 */}
       {enterBg && (
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${enterBg})` }}
+          className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: `url(${enterBg})`, backgroundSize: 'cover', backgroundPosition: enterBgPos }}
         />
       )}
       {/* 배경 그라디언트 오버레이 */}

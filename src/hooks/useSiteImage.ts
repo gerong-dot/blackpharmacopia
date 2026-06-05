@@ -3,8 +3,17 @@ import { getSiteSetting } from '../lib/storage'
 
 export function useSiteImage(key: string) {
   const [url, setUrl] = useState('')
+  const [position, setPosition] = useState('50% 50%')
+
   useEffect(() => {
-    getSiteSetting(key).then(setUrl)
+    Promise.all([
+      getSiteSetting(key),
+      getSiteSetting(`${key}_pos`),
+    ]).then(([u, p]) => {
+      setUrl(u)
+      if (p) setPosition(p)
+    })
   }, [key])
-  return url
+
+  return { url, position }
 }

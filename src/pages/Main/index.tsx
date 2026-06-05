@@ -19,7 +19,7 @@ function getTimeLeft() {
 }
 
 export default function MainScreen() {
-  const mainBanner = useSiteImage('main_banner')
+  const { url: mainBanner, position: bannerPos } = useSiteImage('main_banner')
   const [dday, setDday] = useState(getDday)
   const [time, setTime] = useState(getTimeLeft)
 
@@ -33,7 +33,7 @@ export default function MainScreen() {
       {/* 배너 */}
       {mainBanner && (
         <div className="w-full rounded-sm overflow-hidden border" style={{ maxHeight: '140px', borderColor: 'rgba(0,17,60,0.1)' }}>
-          <img src={mainBanner} alt="banner" className="w-full h-full object-cover block" />
+          <img src={mainBanner} alt="banner" className="w-full h-full block" style={{ objectFit: 'cover', objectPosition: bannerPos }} />
         </div>
       )}
 

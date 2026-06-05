@@ -59,9 +59,9 @@ export default function MainLayout() {
       <header className="shrink-0 flex items-center justify-between px-6 py-3 border-b" style={{ borderColor: 'rgba(195,195,195,0.1)', background: 'rgba(26,32,53,0.98)' }}>
         <div className="flex items-center gap-3">
           <span className="text-white/20 text-xs">✦</span>
-          <span style={{ fontFamily: 'var(--font-display)', color: 'var(--bg)', fontSize: '1.1rem', letterSpacing: '0.08em', fontStyle: 'italic' }}>
+          <NavLink to="/main" className="hover:opacity-80 transition-opacity" style={{ fontFamily: 'var(--font-display)', color: 'var(--bg)', fontSize: '1.1rem', letterSpacing: '0.08em', fontStyle: 'italic' }}>
             EroGuroNonsense
-          </span>
+          </NavLink>
           <span className="text-white/20 text-xs">✦</span>
         </div>
         <div className="flex items-center gap-3">
