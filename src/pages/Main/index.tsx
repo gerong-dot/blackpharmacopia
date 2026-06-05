@@ -30,10 +30,14 @@ export default function MainScreen() {
 
   return (
     <div className="flex flex-col gap-5 pb-4">
-      {/* 배너 */}
+      {/* 배너 — 고정 높이로 수정 */}
       {mainBanner && (
-        <div className="w-full rounded-sm overflow-hidden border" style={{ maxHeight: '140px', borderColor: 'rgba(0,17,60,0.1)' }}>
-          <img src={mainBanner} alt="banner" className="w-full h-full block" style={{ objectFit: 'cover', objectPosition: bannerPos }} />
+        <div className="w-full rounded-sm overflow-hidden border" style={{ height: '150px', borderColor: 'rgba(0,17,60,0.1)' }}>
+          <img
+            src={mainBanner}
+            alt="banner"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: bannerPos, display: 'block' }}
+          />
         </div>
       )}
 
@@ -43,47 +47,51 @@ export default function MainScreen() {
         <CharacterCards index={0} />
 
         {/* 가운데: D-day */}
-        <div className="flex flex-col items-center gap-2 py-2">
+        <div className="flex flex-col items-center gap-3 py-2">
           <div className="flex items-center gap-2 w-full">
             <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(0,17,60,0.15))' }} />
-            <span style={{ color: 'var(--char-red)', fontSize: '0.5rem' }}>✦</span>
+            <span style={{ color: 'var(--char-red)', fontSize: '0.6rem' }}>✦</span>
             <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(0,17,60,0.15))' }} />
           </div>
 
-          <p className="text-xs tracking-[0.2em] opacity-30" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem' }}>
+          {/* 날짜 */}
+          <p className="tracking-widest opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.75rem' }}>
             2026 · 01 · 07
           </p>
 
+          {/* D-day 숫자 */}
           <div className="text-center">
             <div className="flex items-baseline justify-center gap-1">
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: 'var(--char-blue)', opacity: 0.4 }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--char-blue)', opacity: 0.5 }}>
                 D +
               </span>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3rem, 7vw, 5rem)', color: 'var(--char-blue)', lineHeight: 1, fontWeight: 700 }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(3.5rem, 8vw, 5.5rem)', color: 'var(--char-blue)', lineHeight: 1, fontWeight: 700 }}>
                 {Math.abs(dday)}
               </span>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 mt-2">
+            {/* 시간 */}
+            <div className="flex items-center justify-center gap-2 mt-2">
               {[time.h, time.m, time.s].map((v, i) => (
-                <div key={i} className="flex items-center gap-1.5">
+                <div key={i} className="flex items-center gap-2">
                   <div className="flex flex-col items-center">
-                    <span style={{ fontFamily: 'var(--font-title)', fontSize: '1.1rem', color: 'var(--char-blue)', fontWeight: 600 }}>{v}</span>
-                    <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', opacity: 0.2, fontSize: '0.55rem' }}>{['HH','MM','SS'][i]}</span>
+                    <span style={{ fontFamily: 'var(--font-title)', fontSize: '1.3rem', color: 'var(--char-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>{v}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', opacity: 0.25, fontSize: '0.6rem' }}>{['HH','MM','SS'][i]}</span>
                   </div>
-                  {i < 2 && <span className="opacity-20 mb-3" style={{ color: 'var(--char-blue)', fontSize: '0.9rem' }}>:</span>}
+                  {i < 2 && <span className="opacity-20 mb-3" style={{ color: 'var(--char-blue)', fontSize: '1rem' }}>:</span>}
                 </div>
               ))}
             </div>
           </div>
 
-          <p className="text-center opacity-20 leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem', letterSpacing: '0.05em' }}>
+          {/* 인용구 */}
+          <p className="text-center leading-relaxed opacity-35" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.7rem', letterSpacing: '0.06em' }}>
             틀린다는 것은<br/>또 다른 결과값의<br/>도출이랍니다.
           </p>
 
           <div className="flex items-center gap-2 w-full">
             <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(0,17,60,0.15))' }} />
-            <span style={{ color: 'var(--char-red)', fontSize: '0.5rem' }}>✦</span>
+            <span style={{ color: 'var(--char-red)', fontSize: '0.6rem' }}>✦</span>
             <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(0,17,60,0.15))' }} />
           </div>
         </div>
