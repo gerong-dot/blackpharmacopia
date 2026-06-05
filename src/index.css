@@ -4,7 +4,7 @@
   --char-blue: #00113c;
   --char-red: #800001;
   --bg: #c3c3c3;
-  --dark: #1a2035;
+  --dark: #3a4260;
   --paper: #f0ece3;
   --paper-dark: #e2ddd3;
 
@@ -22,7 +22,7 @@ body {
   background-color: var(--dark);
   color: var(--paper);
   font-family: var(--font-sans);
-  background-image: radial-gradient(ellipse at top, #243050 0%, #1a2035 60%);
+  background-image: radial-gradient(ellipse at top, #4a5475 0%, #3a4260 60%);
   min-height: 100vh;
 }
 
