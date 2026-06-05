@@ -64,7 +64,7 @@ export default function MainLayout() {
       {showDrawer && <MobileDrawer onClose={() => setShowDrawer(false)} />}
 
       {/* 상단 헤더 */}
-      <header className="shrink-0 flex items-center justify-between px-6 py-3 border-b" style={{ borderColor: 'rgba(195,195,195,0.1)', background: 'rgba(26,32,53,0.98)' }}>
+      <header className="shrink-0 flex items-center justify-between px-4 py-1.5 border-b" style={{ borderColor: 'rgba(195,195,195,0.1)', background: 'rgba(26,32,53,0.98)' }}>
         <div className="flex items-center gap-3">
           <span className="text-white/20 text-xs">✦</span>
           <NavLink to="/main" className="hover:opacity-80 transition-opacity" style={{ fontFamily: 'var(--font-display)', color: 'var(--bg)', fontSize: '1.1rem', letterSpacing: '0.08em', fontStyle: 'italic' }}>
@@ -175,11 +175,6 @@ export default function MainLayout() {
           </WindowCard>
 
           <MiniGuestbook />
-
-          {/* 채팅 하단 이미지 슬롯 — 고정 높이로 항상 표시 */}
-          <div style={{ height: '180px', flexShrink: 0 }}>
-            <PanelImage settingKey="left_panel_bottom" aspectClass="" />
-          </div>
         </div>
 
         {/* 오른쪽 패널 */}
