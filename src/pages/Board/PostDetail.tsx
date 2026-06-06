@@ -23,6 +23,7 @@ export default function PostDetail() {
   const [commentText, setCommentText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const { user, profile } = useAuth()
   const navigate = useNavigate()
 
@@ -77,7 +78,6 @@ export default function PostDetail() {
   }
 
   async function handleDeletePost() {
-    if (!confirm('이 글을 삭제하시겠습니까?')) return
     try {
       await supabase.from('reactions').delete().eq('post_id', id!)
       await supabase.from('comments').delete().eq('post_id', id!)
@@ -85,7 +85,7 @@ export default function PostDetail() {
       if (error) throw error
       navigate('/main/board')
     } catch (e) {
-      alert('삭제 중 오류가 발생했습니다.')
+      setConfirmDelete(false)
       console.error(e)
     }
   }
@@ -110,9 +110,17 @@ export default function PostDetail() {
             <Link to={`/main/board/${id}/edit`} className="flex items-center gap-1 text-xs opacity-50 hover:opacity-80" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
               <Pencil size={12} /> 수정
             </Link>
-            <button onClick={handleDeletePost} className="flex items-center gap-1 text-xs opacity-50 hover:opacity-80" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-red)' }}>
-              <Trash2 size={12} /> 삭제
-            </button>
+            {confirmDelete ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs opacity-60" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>삭제할까요?</span>
+                <button onClick={handleDeletePost} className="text-xs px-2 py-0.5 rounded-sm text-white" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>확인</button>
+                <button onClick={() => setConfirmDelete(false)} className="text-xs px-2 py-0.5 rounded-sm opacity-50 hover:opacity-80" style={{ border: '1px solid rgba(0,17,60,0.2)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>취소</button>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmDelete(true)} className="flex items-center gap-1 text-xs opacity-50 hover:opacity-80" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-red)' }}>
+                <Trash2 size={12} /> 삭제
+              </button>
+            )}
           </div>
         )}
       </div>
