@@ -78,8 +78,16 @@ export default function PostDetail() {
 
   async function handleDeletePost() {
     if (!confirm('이 글을 삭제하시겠습니까?')) return
-    await supabase.from('posts').delete().eq('id', id!)
-    navigate('/main/board')
+    try {
+      await supabase.from('reactions').delete().eq('post_id', id!)
+      await supabase.from('comments').delete().eq('post_id', id!)
+      const { error } = await supabase.from('posts').delete().eq('id', id!)
+      if (error) throw error
+      navigate('/main/board')
+    } catch (e) {
+      alert('삭제 중 오류가 발생했습니다.')
+      console.error(e)
+    }
   }
 
   if (loading) return <div className="py-20 text-center opacity-40" style={{ fontFamily: 'var(--font-deco)', fontSize: '1.5rem', color: 'var(--char-blue)' }}>loading...</div>
