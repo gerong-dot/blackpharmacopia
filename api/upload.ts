@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 )
 
-export const config = { api: { bodyParser: { sizeLimit: '10mb' } } }
+export const config = { api: { bodyParser: { sizeLimit: '6mb' } } }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })

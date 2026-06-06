@@ -1,29 +1,50 @@
 import { supabase } from './supabase'
 
+function compressImage(file: File): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const MAX = 1200
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height))
+      const w = Math.round(img.width * scale)
+      const h = Math.round(img.height * scale)
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(blob => resolve(blob ?? file), 'image/jpeg', 0.82)
+    }
+    img.onerror = () => resolve(file)
+    img.src = objectUrl
+  })
+}
+
 export async function uploadImage(file: File, path: string): Promise<string> {
+  const compressed = await compressImage(file)
   const filePath = `${path}.jpg`
 
-  // 1단계: 서명 업로드 URL 받기 (body가 거의 없어서 Vercel 제한 없음)
-  const urlRes = await fetch('/api/get-upload-url', {
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(compressed)
+  })
+
+  const res = await fetch('/api/upload', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ path: filePath }),
+    body: JSON.stringify({ base64, path: filePath, mimeType: 'image/jpeg' }),
   })
-  if (!urlRes.ok) {
-    const err = await urlRes.json()
-    throw new Error(err.error ?? 'URL 생성 실패')
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error ?? '업로드 실패')
   }
-  const { signedUrl, publicUrl } = await urlRes.json()
 
-  // 2단계: Supabase Storage에 직접 PUT (Vercel 경유 안 함)
-  const putRes = await fetch(signedUrl, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'image/jpeg' },
-    body: file,
-  })
-  if (!putRes.ok) throw new Error('스토리지 업로드 실패')
-
-  return publicUrl
+  const { url } = await res.json()
+  return url
 }
 
 export async function getSiteSetting(key: string): Promise<string> {
