@@ -33,7 +33,7 @@ export default function MainScreen() {
     <div className="flex flex-col gap-5 pb-4">
       {/* 배너 — 고정 높이로 수정 */}
       {mainBanner && (
-        <div className="w-full rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.1)', aspectRatio: '16 / 7' }}>
+        <div className="w-full rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.1)', aspectRatio: '16 / 5', maxHeight: '160px' }}>
           <img
             src={mainBanner}
             alt="banner"
