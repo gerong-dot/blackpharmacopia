@@ -11,7 +11,7 @@ export default function RichEditor({ value, onChange }: Props) {
   const composing = useRef(false)
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (!composing.current) onChange(e.target.value.normalize('NFC'))
+    onChange(e.target.value)
   }, [onChange])
 
   const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLTextAreaElement>) => {

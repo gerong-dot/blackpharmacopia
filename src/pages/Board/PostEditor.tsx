@@ -145,9 +145,9 @@ export default function PostEditor() {
             type="text"
             placeholder="제목"
             value={title}
-            onChange={e => { if (!composingTitle.current) setTitle(e.target.value) }}
+            onChange={e => setTitle(e.target.value)}
             onCompositionStart={() => { composingTitle.current = true }}
-            onCompositionEnd={e => { composingTitle.current = false; setTitle(e.currentTarget.value) }}
+            onCompositionEnd={e => { composingTitle.current = false; setTitle(e.currentTarget.value.normalize('NFC')) }}
           />
           <input
             className={inputBase + ' w-36'}
@@ -155,9 +155,9 @@ export default function PostEditor() {
             type="text"
             placeholder="카테고리"
             value={category}
-            onChange={e => { if (!composingCategory.current) setCategory(e.target.value) }}
+            onChange={e => setCategory(e.target.value)}
             onCompositionStart={() => { composingCategory.current = true }}
-            onCompositionEnd={e => { composingCategory.current = false; setCategory(e.currentTarget.value) }}
+            onCompositionEnd={e => { composingCategory.current = false; setCategory(e.currentTarget.value.normalize('NFC')) }}
           />
         </div>
 
@@ -195,9 +195,9 @@ export default function PostEditor() {
           <textarea
             rows={24}
             value={content}
-            onChange={e => { if (!composingHtml.current) setContent(e.target.value) }}
+            onChange={e => setContent(e.target.value)}
             onCompositionStart={() => { composingHtml.current = true }}
-            onCompositionEnd={e => { composingHtml.current = false; setContent(e.currentTarget.value) }}
+            onCompositionEnd={e => { composingHtml.current = false; setContent(e.currentTarget.value.normalize('NFC')) }}
             placeholder={`<h2>제목</h2>\n<p>내용을 입력하세요...</p>\n<img src="..." alt="이미지" />`}
             className="w-full px-4 py-3 rounded border outline-none bg-white"
             style={{
