@@ -11,12 +11,12 @@ export default function RichEditor({ value, onChange }: Props) {
   const composing = useRef(false)
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (!composing.current) onChange(e.target.value)
+    if (!composing.current) onChange(e.target.value.normalize('NFC'))
   }, [onChange])
 
   const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLTextAreaElement>) => {
     composing.current = false
-    onChange(e.currentTarget.value)
+    onChange(e.currentTarget.value.normalize('NFC'))
   }, [onChange])
 
   function wrap(before: string, after: string, placeholder = '') {
