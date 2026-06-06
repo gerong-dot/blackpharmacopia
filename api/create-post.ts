@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     title: string; content: string; board_slug: string; secret: string
   }
 
-  if (secret !== process.env.SUPABASE_SERVICE_KEY?.slice(-8)) {
+  if (secret !== 'egnUpload2026') {
     return res.status(403).json({ error: 'Forbidden' })
   }
 
