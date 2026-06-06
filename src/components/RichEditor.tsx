@@ -11,7 +11,13 @@ export default function RichEditor({ value, onChange }: Props) {
   const composing = useRef(false)
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value)
+    // composing 중에도 state 동기화 (React가 DOM 되돌리는 것 방지)
+    // compositionEnd 직후 change 이벤트가 다시 오면 NFC를 덮어쓰지 않도록 composing 확인
+    if (composing.current) {
+      onChange(e.target.value)
+    } else {
+      onChange(e.target.value.normalize('NFC'))
+    }
   }, [onChange])
 
   const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLTextAreaElement>) => {

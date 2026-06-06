@@ -26,8 +26,6 @@ export default function PostEditor() {
   const [mode, setMode] = useState<EditorMode>('rich')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const composingTitle = useRef(false)
-  const composingCategory = useRef(false)
   const composingHtml = useRef(false)
 
   useEffect(() => {
@@ -137,29 +135,16 @@ export default function PostEditor() {
           </div>
         )}
 
-        {/* 제목 + 카테고리 */}
-        <div className="flex gap-3">
-          <input
-            className={inputBase + ' flex-1'}
-            style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}
-            type="text"
-            placeholder="제목"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            onCompositionStart={() => { composingTitle.current = true }}
-            onCompositionEnd={e => { composingTitle.current = false; setTitle(e.currentTarget.value.normalize('NFC')) }}
-          />
-          <input
-            className={inputBase + ' w-36'}
-            style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
-            type="text"
-            placeholder="카테고리"
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-            onCompositionStart={() => { composingCategory.current = true }}
-            onCompositionEnd={e => { composingCategory.current = false; setCategory(e.currentTarget.value.normalize('NFC')) }}
-          />
-        </div>
+        {/* 제목 */}
+        <input
+          className={inputBase}
+          style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}
+          type="text"
+          placeholder="제목"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          onCompositionEnd={e => setTitle(e.currentTarget.value.normalize('NFC'))}
+        />
 
         {/* 비공개 토글 */}
         <label className="flex items-center gap-2 cursor-pointer w-fit">
@@ -195,7 +180,7 @@ export default function PostEditor() {
           <textarea
             rows={24}
             value={content}
-            onChange={e => setContent(e.target.value)}
+            onChange={e => { composingHtml.current ? setContent(e.target.value) : setContent(e.target.value.normalize('NFC')) }}
             onCompositionStart={() => { composingHtml.current = true }}
             onCompositionEnd={e => { composingHtml.current = false; setContent(e.currentTarget.value.normalize('NFC')) }}
             placeholder={`<h2>제목</h2>\n<p>내용을 입력하세요...</p>\n<img src="..." alt="이미지" />`}
