@@ -94,8 +94,9 @@ export default function PostDetail() {
   if (!post) return <div className="py-20 text-center opacity-40 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>게시글을 찾을 수 없습니다</div>
 
   const safeHTML = DOMPurify.sanitize(post.content, {
-    ADD_TAGS: ['iframe'],
-    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'src', 'width', 'height'],
+    ADD_TAGS: ['iframe', 'style'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'src', 'width', 'height', 'type'],
+    FORCE_BODY: true,
   })
 
   return (
