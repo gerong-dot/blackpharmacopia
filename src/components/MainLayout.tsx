@@ -198,7 +198,7 @@ export default function MainLayout() {
             )}
           </div>
 
-          <div className="flex-1 overflow-auto paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
+          <div className="flex-1 overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
             <div className="relative z-10 p-5 h-full">
               <Outlet context={{ openLogin: () => setShowLogin(true) }} />
             </div>
