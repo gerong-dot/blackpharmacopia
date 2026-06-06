@@ -20,6 +20,7 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
   const [adjusting, setAdjusting] = useState(false)
   const [position, setPosition] = useState(currentPosition)
   const [dragging, setDragging] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(currentUrl)
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -27,6 +28,7 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
     setUploading(true); setError('')
     try {
       const url = await uploadImage(file, storagePath)
+      setPreviewUrl(`${url}?t=${Date.now()}`)
       onUploaded(url, position)
     } catch (err) {
       setError('업로드 실패: ' + (err as Error).message)
@@ -71,9 +73,9 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
         onMouseUp={() => { if (adjusting) setDragging(false) }}
         onMouseLeave={() => setDragging(false)}
       >
-        {currentUrl ? (
+        {previewUrl ? (
           <img
-            src={currentUrl}
+            src={previewUrl}
             alt={label}
             className="w-full h-full"
             style={{ objectFit: 'cover', objectPosition: position, userSelect: 'none', pointerEvents: 'none' }}
