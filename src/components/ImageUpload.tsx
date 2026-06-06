@@ -2,6 +2,28 @@ import { useRef, useState } from 'react'
 import { Upload, Loader, Move } from 'lucide-react'
 import { uploadImage } from '../lib/storage'
 
+function compressImage(file: File, maxPx = 2400, quality = 0.85): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height))
+      const w = Math.round(img.width * scale)
+      const h = Math.round(img.height * scale)
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(blob => {
+        resolve(blob ? new File([blob], file.name, { type: 'image/jpeg' }) : file)
+      }, 'image/jpeg', quality)
+    }
+    img.onerror = () => resolve(file)
+    img.src = url
+  })
+}
+
 type Props = {
   storagePath: string
   currentUrl: string
@@ -24,10 +46,10 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 10 * 1024 * 1024) { setError('10MB 이하만 가능합니다.'); return }
     setUploading(true); setError('')
     try {
-      const url = await uploadImage(file, storagePath)
+      const compressed = await compressImage(file)
+      const url = await uploadImage(compressed, storagePath)
       onUploaded(url, position)
     } catch (err) {
       setError('업로드 실패: ' + (err as Error).message)
