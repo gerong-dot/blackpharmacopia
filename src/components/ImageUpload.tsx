@@ -9,9 +9,10 @@ type Props = {
   onUploaded: (url: string, position?: string) => void
   label?: string
   aspectClass?: string
+  containerStyle?: React.CSSProperties
 }
 
-export default function ImageUpload({ storagePath, currentUrl, currentPosition = '50% 50%', onUploaded, label = '이미지', aspectClass = 'aspect-video' }: Props) {
+export default function ImageUpload({ storagePath, currentUrl, currentPosition = '50% 50%', onUploaded, label = '이미지', aspectClass = 'aspect-video', containerStyle }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -63,6 +64,7 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
           borderColor: 'rgba(0,17,60,0.15)',
           cursor: adjusting ? (dragging ? 'grabbing' : 'grab') : 'pointer',
           background: 'rgba(0,17,60,0.04)',
+          ...containerStyle,
         }}
         onClick={() => { if (!adjusting) inputRef.current?.click() }}
         onMouseMove={handleMouseMove}
