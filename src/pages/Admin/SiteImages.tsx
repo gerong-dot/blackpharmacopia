@@ -69,9 +69,8 @@ export default function SiteImages() {
           currentUrl={settings.main_banner}
           currentPosition={settings.main_banner_pos}
           onUploaded={(url, pos) => handleUploaded('main_banner', 'main_banner_pos', url, pos)}
-          label="메인 홈 상단 배너 (실제 표시 비율 16:5 기준)"
-          aspectClass=""
-          containerStyle={{ aspectRatio: '16 / 5' }}
+          label="메인 홈 상단 배너 (실제 배너 비율 16:5로 미리보기)"
+          aspectClass="aspect-[16/5]"
         />
         <ImageUpload
           storagePath="site/about-image"

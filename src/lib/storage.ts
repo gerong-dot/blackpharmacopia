@@ -1,32 +1,29 @@
 import { supabase } from './supabase'
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
-
 export async function uploadImage(file: File, path: string): Promise<string> {
-  const ext = file.name.split('.').pop() ?? 'jpg'
-  const filePath = `${path}.${ext}`
-  const base64 = await fileToBase64(file)
+  const filePath = `${path}.jpg`
 
-  const res = await fetch('/api/upload', {
+  // 1단계: 서명 업로드 URL 받기 (body가 거의 없어서 Vercel 제한 없음)
+  const urlRes = await fetch('/api/get-upload-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64, path: filePath, mimeType: file.type }),
+    body: JSON.stringify({ path: filePath }),
   })
-
-  if (!res.ok) {
-    const err = await res.json()
-    throw new Error(err.error ?? '업로드 실패')
+  if (!urlRes.ok) {
+    const err = await urlRes.json()
+    throw new Error(err.error ?? 'URL 생성 실패')
   }
+  const { signedUrl, publicUrl } = await urlRes.json()
 
-  const { url } = await res.json()
-  return url
+  // 2단계: Supabase Storage에 직접 PUT (Vercel 경유 안 함)
+  const putRes = await fetch(signedUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'image/jpeg' },
+    body: file,
+  })
+  if (!putRes.ok) throw new Error('스토리지 업로드 실패')
+
+  return publicUrl
 }
 
 export async function getSiteSetting(key: string): Promise<string> {

@@ -81,12 +81,12 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
 
       <div
         ref={containerRef}
-        className={`${aspectClass} w-full rounded-sm border overflow-hidden relative group`}
+        className={`w-full rounded-sm border overflow-hidden relative group${aspectClass ? ` ${aspectClass}` : ''}`}
         style={{
           borderColor: 'rgba(0,17,60,0.15)',
           cursor: adjusting ? (dragging ? 'grabbing' : 'grab') : 'pointer',
           background: 'rgba(0,17,60,0.04)',
-          ...containerStyle,
+          ...(containerStyle ?? {}),
         }}
         onClick={() => { if (!adjusting) inputRef.current?.click() }}
         onMouseMove={handleMouseMove}
