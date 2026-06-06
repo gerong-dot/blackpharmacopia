@@ -11,6 +11,7 @@ const PostEditor  = lazy(() => import('./pages/Board/PostEditor'))
 const GalleryPage = lazy(() => import('./pages/Gallery'))
 const GuestbookPage = lazy(() => import('./pages/Guestbook'))
 const SiteImages  = lazy(() => import('./pages/Admin/SiteImages'))
+const HtmlUpload  = lazy(() => import('./pages/Admin/HtmlUpload'))
 
 function Loading() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="gallery" element={<Suspense fallback={<Loading />}><GalleryPage /></Suspense>} />
         <Route path="guestbook" element={<Suspense fallback={<Loading />}><GuestbookPage /></Suspense>} />
         <Route path="admin/images" element={<AdminRoute><Suspense fallback={<Loading />}><SiteImages /></Suspense></AdminRoute>} />
+        <Route path="admin/html-upload" element={<AdminRoute><Suspense fallback={<Loading />}><HtmlUpload /></Suspense></AdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/main" replace />} />
     </Routes>
