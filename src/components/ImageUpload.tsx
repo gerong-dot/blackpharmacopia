@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Upload, Loader, Move } from 'lucide-react'
 import { uploadImage } from '../lib/storage'
 
@@ -12,15 +12,29 @@ type Props = {
   containerStyle?: React.CSSProperties
 }
 
-export default function ImageUpload({ storagePath, currentUrl, currentPosition = '50% 50%', onUploaded, label = '이미지', aspectClass = 'aspect-video', containerStyle }: Props) {
+function parsePos(pos: string) {
+  const [x, y] = pos.replace(/%/g, '').trim().split(/\s+/).map(Number)
+  return { x: isNaN(x) ? 50 : x, y: isNaN(y) ? 50 : y }
+}
+
+export default function ImageUpload({
+  storagePath, currentUrl, currentPosition = '50% 50%',
+  onUploaded, label = '이미지',
+  aspectClass = 'aspect-video', containerStyle
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [adjusting, setAdjusting] = useState(false)
-  const [position, setPosition] = useState(currentPosition)
-  const [dragging, setDragging] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState(currentUrl)
+  const [pos, setPos] = useState(() => parsePos(currentPosition))
+  const [displayUrl, setDisplayUrl] = useState(currentUrl || '')
+
+  // 외부에서 currentUrl이 바뀌면 동기화
+  useEffect(() => {
+    if (currentUrl) setDisplayUrl(currentUrl)
+  }, [currentUrl])
+
+  const posStr = `${pos.x}% ${pos.y}%`
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -28,8 +42,9 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
     setUploading(true); setError('')
     try {
       const url = await uploadImage(file, storagePath)
-      setPreviewUrl(`${url}?t=${Date.now()}`)
-      onUploaded(url, position)
+      const busted = `${url}?t=${Date.now()}`
+      setDisplayUrl(busted)
+      onUploaded(url, posStr)
     } catch (err) {
       setError('업로드 실패: ' + (err as Error).message)
     }
@@ -37,19 +52,14 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
     e.target.value = ''
   }
 
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (!dragging || !adjusting || !containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100)
-    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100)
-    const clamped = `${Math.min(100, Math.max(0, x))}% ${Math.min(100, Math.max(0, y))}%`
-    setPosition(clamped)
+  function handleSave() {
+    setAdjusting(false)
+    onUploaded(currentUrl, posStr)
   }
 
-  function handlePositionSave() {
+  function handleCancel() {
     setAdjusting(false)
-    setDragging(false)
-    onUploaded(currentUrl, position)
+    setPos(parsePos(currentPosition))
   }
 
   return (
@@ -58,27 +68,19 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
         {label}
       </p>
 
+      {/* 미리보기 */}
       <div
-        ref={containerRef}
         className={`w-full rounded-sm border overflow-hidden relative group${aspectClass ? ` ${aspectClass}` : ''}`}
-        style={{
-          borderColor: 'rgba(0,17,60,0.15)',
-          cursor: adjusting ? (dragging ? 'grabbing' : 'grab') : 'pointer',
-          background: 'rgba(0,17,60,0.04)',
-          ...(containerStyle ?? {}),
-        }}
+        style={{ borderColor: 'rgba(0,17,60,0.15)', background: 'rgba(0,17,60,0.04)', cursor: 'pointer', ...(containerStyle ?? {}) }}
         onClick={() => { if (!adjusting) inputRef.current?.click() }}
-        onMouseMove={handleMouseMove}
-        onMouseDown={() => { if (adjusting) setDragging(true) }}
-        onMouseUp={() => { if (adjusting) setDragging(false) }}
-        onMouseLeave={() => setDragging(false)}
       >
-        {previewUrl ? (
+        {displayUrl ? (
           <img
-            src={previewUrl}
+            key={displayUrl}
+            src={displayUrl}
             alt={label}
             className="w-full h-full"
-            style={{ objectFit: 'cover', objectPosition: position, userSelect: 'none', pointerEvents: 'none' }}
+            style={{ objectFit: 'cover', objectPosition: posStr, userSelect: 'none', pointerEvents: 'none' }}
             draggable={false}
           />
         ) : (
@@ -94,7 +96,7 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
               ? <Loader size={22} className="text-white animate-spin" />
               : <>
                   <span className="text-white text-xs tracking-widest" style={{ fontFamily: 'var(--font-title)' }}>클릭하여 업로드</span>
-                  {currentUrl && (
+                  {displayUrl && (
                     <button
                       type="button"
                       onClick={e => { e.stopPropagation(); setAdjusting(true) }}
@@ -108,32 +110,45 @@ export default function ImageUpload({ storagePath, currentUrl, currentPosition =
             }
           </div>
         )}
-
-        {/* 위치 조정 모드 */}
-        {adjusting && (
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-3 gap-2"
-            style={{ background: 'rgba(0,0,0,0.3)' }}>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm" style={{ background: 'rgba(0,0,0,0.6)' }}>
-              <Move size={11} className="text-white/70" />
-              <span className="text-white text-xs" style={{ fontFamily: 'var(--font-title)' }}>드래그로 위치 조정</span>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" onClick={handlePositionSave}
-                className="px-3 py-1 rounded-sm text-xs text-white"
-                style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}
-                onMouseDown={e => e.stopPropagation()}>
-                저장
-              </button>
-              <button type="button" onClick={() => { setAdjusting(false); setPosition(currentPosition) }}
-                className="px-3 py-1 rounded-sm text-xs text-white/70"
-                style={{ background: 'rgba(0,0,0,0.5)', fontFamily: 'var(--font-title)' }}
-                onMouseDown={e => e.stopPropagation()}>
-                취소
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* 위치 조정 패널 — 배너 아래에 슬라이더로 표시 */}
+      {adjusting && (
+        <div className="flex flex-col gap-3 p-3 rounded-sm border" style={{ borderColor: 'rgba(0,17,60,0.12)', background: 'rgba(0,17,60,0.03)' }}>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-3">
+              <span className="text-xs w-12 shrink-0" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', opacity: 0.6 }}>좌우</span>
+              <input
+                type="range" min={0} max={100} value={pos.x}
+                onChange={e => setPos(p => ({ ...p, x: Number(e.target.value) }))}
+                className="flex-1"
+              />
+              <span className="text-xs w-8 text-right" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', opacity: 0.5 }}>{pos.x}%</span>
+            </label>
+            <label className="flex items-center gap-3">
+              <span className="text-xs w-12 shrink-0" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', opacity: 0.6 }}>위아래</span>
+              <input
+                type="range" min={0} max={100} value={pos.y}
+                onChange={e => setPos(p => ({ ...p, y: Number(e.target.value) }))}
+                className="flex-1"
+              />
+              <span className="text-xs w-8 text-right" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', opacity: 0.5 }}>{pos.y}%</span>
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button type="button" onClick={handleSave}
+              className="px-4 py-1.5 rounded-sm text-xs text-white"
+              style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>
+              저장
+            </button>
+            <button type="button" onClick={handleCancel}
+              className="px-4 py-1.5 rounded-sm text-xs opacity-50 hover:opacity-80"
+              style={{ border: '1px solid rgba(0,17,60,0.2)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && <p className="text-red-600 text-xs">{error}</p>}
       <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
