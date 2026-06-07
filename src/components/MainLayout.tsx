@@ -198,8 +198,8 @@ export default function MainLayout() {
         </div>
 
         {/* 오른쪽 패널 */}
-        <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
-          <div className="shrink-0 flex items-center border-b" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
+        <div className="flex-1 flex flex-col gap-2 min-w-0 min-h-0 overflow-hidden">
+          <div className="shrink-0 flex items-center border-b overflow-x-auto" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
             {tabs.map(({ to, label, end }) => (
               <NavLink key={to} to={to} end={end}
                 className={({ isActive }) =>
@@ -218,8 +218,8 @@ export default function MainLayout() {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
-            <div className="relative z-10 p-5 h-full">
+          <div className="flex-1 min-h-0 overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
+            <div className="relative z-10 p-5">
               <Outlet context={{ openLogin: () => setShowLogin(true) }} />
             </div>
           </div>
