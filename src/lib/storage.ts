@@ -43,26 +43,31 @@ export async function uploadImage(file: File, path: string): Promise<string> {
   const compressed = await compressImage(file)
   const filePath = `${path}.jpg`
 
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(compressed)
-  })
-
-  const res = await fetch('/api/upload', {
+  // 서버에서 서명 URL 발급받아 Supabase에 직접 업로드 (서버리스 바디 제한 우회)
+  const urlRes = await fetch('/api/get-upload-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64, path: filePath, mimeType: 'image/jpeg' }),
+    body: JSON.stringify({ path: filePath }),
   })
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error ?? '업로드 실패')
+  if (!urlRes.ok) {
+    const text = await urlRes.text().catch(() => '')
+    let msg = '업로드 URL 생성 실패'
+    try { msg = JSON.parse(text).error ?? msg } catch { msg = text || msg }
+    throw new Error(msg)
   }
 
-  const { url } = await res.json()
-  return url
+  const { signedUrl, publicUrl } = await urlRes.json()
+
+  const uploadRes = await fetch(signedUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'image/jpeg' },
+    body: compressed,
+  })
+
+  if (!uploadRes.ok) throw new Error(`스토리지 업로드 실패 (${uploadRes.status})`)
+
+  return publicUrl
 }
 
 export async function getSiteSetting(key: string): Promise<string> {
