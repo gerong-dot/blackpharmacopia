@@ -10,7 +10,6 @@ import MobileDrawer from './MobileDrawer'
 import { uploadImage, prefetchSettings } from '../lib/storage'
 import { setCached } from '../lib/queryCache'
 import { supabase } from '../lib/supabase'
-import { supabase } from '../lib/supabase'
 import MiniGuestbook from './MiniGuestbook'
 import BookmarkBar from './BookmarkBar'
 
