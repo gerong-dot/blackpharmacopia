@@ -71,7 +71,7 @@ create policy "guestbook_select" on public.guestbook
   for select using (true);
 
 create policy "guestbook_insert" on public.guestbook
-  for insert with check (auth.uid() = author_id);
+  for insert with check (true);
 
 create policy "guestbook_delete" on public.guestbook
   for delete using (auth.uid() = author_id);

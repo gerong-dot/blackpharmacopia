@@ -8,6 +8,7 @@ export default function GuestbookPage() {
   const [entries, setEntries] = useState<GuestbookEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [text, setText] = useState('')
+  const [guestName, setGuestName] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const { user, profile } = useAuth()
 
@@ -26,14 +27,17 @@ export default function GuestbookPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!text.trim() || !profile) return
+    if (!text.trim()) return
+    const name = profile ? profile.username : guestName.trim()
+    if (!name) return
     setSubmitting(true)
     await supabase.from('guestbook').insert({
-      author_id: user!.id,
-      author_name: profile.username,
+      author_id: profile ? user!.id : null,
+      author_name: name,
       content: text.trim(),
     })
     setText('')
+    if (!profile) setGuestName('')
     await fetchEntries()
     setSubmitting(false)
   }
@@ -54,8 +58,19 @@ export default function GuestbookPage() {
       </h1>
 
       {/* 작성 폼 */}
-      {profile ? (
-        <form onSubmit={handleSubmit} className="mb-10 flex gap-2">
+      <form onSubmit={handleSubmit} className="mb-10 flex flex-col gap-2">
+        {!profile && (
+          <input
+            className="px-4 py-2 rounded border text-sm outline-none bg-white focus:border-black/30 transition-colors"
+            style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
+            placeholder="이름"
+            value={guestName}
+            onChange={e => setGuestName(e.target.value)}
+            maxLength={20}
+            required
+          />
+        )}
+        <div className="flex gap-2">
           <input
             className="flex-1 px-4 py-2 rounded border text-sm outline-none bg-white focus:border-black/30 transition-colors"
             style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
@@ -66,19 +81,14 @@ export default function GuestbookPage() {
           />
           <button
             type="submit"
-            disabled={submitting || !text.trim()}
+            disabled={submitting || !text.trim() || (!profile && !guestName.trim())}
             className="px-5 py-2 rounded text-sm text-white transition-opacity disabled:opacity-40"
             style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}
           >
             남기기
           </button>
-        </form>
-      ) : (
-        <p className="mb-10 text-sm opacity-40 text-center py-4 rounded border border-dashed"
-          style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', borderColor: 'rgba(0,17,60,0.15)' }}>
-          로그인 후 방명록을 남길 수 있어요
-        </p>
-      )}
+        </div>
+      </form>
 
       {/* 목록 */}
       {loading ? (
