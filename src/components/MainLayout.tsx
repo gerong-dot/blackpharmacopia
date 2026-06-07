@@ -19,6 +19,8 @@ const tabs = [
   { to: '/main/about', label: 'NOTICE' },
   { to: '/main/board', label: 'DIARY' },
   { to: '/main/gallery', label: 'GALLERY' },
+  { to: '/main/lore', label: 'LORE' },
+  { to: '/main/relations', label: 'REL' },
   { to: '/main/guestbook', label: 'GUEST' },
 ]
 

@@ -10,6 +10,8 @@ const PostDetail  = lazy(() => import('./pages/Board/PostDetail'))
 const PostEditor  = lazy(() => import('./pages/Board/PostEditor'))
 const GalleryPage = lazy(() => import('./pages/Gallery'))
 const GuestbookPage = lazy(() => import('./pages/Guestbook'))
+const LorePage      = lazy(() => import('./pages/Lore'))
+const RelationsPage = lazy(() => import('./pages/Relations'))
 const SiteImages  = lazy(() => import('./pages/Admin/SiteImages'))
 const HtmlUpload  = lazy(() => import('./pages/Admin/HtmlUpload'))
 
@@ -41,6 +43,8 @@ export default function App() {
         <Route path="board/:id/edit" element={<AdminRoute><Suspense fallback={<Loading />}><PostEditor /></Suspense></AdminRoute>} />
         <Route path="gallery" element={<Suspense fallback={<Loading />}><GalleryPage /></Suspense>} />
         <Route path="guestbook" element={<Suspense fallback={<Loading />}><GuestbookPage /></Suspense>} />
+        <Route path="lore" element={<Suspense fallback={<Loading />}><LorePage /></Suspense>} />
+        <Route path="relations" element={<Suspense fallback={<Loading />}><RelationsPage /></Suspense>} />
         <Route path="admin/images" element={<AdminRoute><Suspense fallback={<Loading />}><SiteImages /></Suspense></AdminRoute>} />
         <Route path="admin/html-upload" element={<AdminRoute><Suspense fallback={<Loading />}><HtmlUpload /></Suspense></AdminRoute>} />
       </Route>
