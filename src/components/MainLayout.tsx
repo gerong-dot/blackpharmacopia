@@ -15,13 +15,13 @@ import BookmarkBar from './BookmarkBar'
 
 
 const tabs = [
-  { to: '/main', label: 'HOME', end: true },
-  { to: '/main/about', label: 'NOTICE' },
-  { to: '/main/board', label: 'DIARY' },
-  { to: '/main/gallery', label: 'GALLERY' },
-  { to: '/main/lore', label: 'LORE' },
-  { to: '/main/relations', label: 'REL' },
-  { to: '/main/guestbook', label: 'GUEST' },
+  { to: '/main', label: 'HOME', short: 'HOME', end: true },
+  { to: '/main/about', label: 'NOTICE', short: 'NOTE' },
+  { to: '/main/board', label: 'DIARY', short: 'DIARY' },
+  { to: '/main/gallery', label: 'GALLERY', short: 'GALL' },
+  { to: '/main/lore', label: 'LORE', short: 'LORE' },
+  { to: '/main/relations', label: 'REL', short: 'REL' },
+  { to: '/main/guestbook', label: 'GUEST', short: 'GUEST' },
 ]
 
 export default function MainLayout() {
@@ -77,7 +77,7 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--dark)' }}>
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--dark)' }}>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDrawer && <MobileDrawer onClose={() => setShowDrawer(false)} />}
 
@@ -120,7 +120,7 @@ export default function MainLayout() {
       <BookmarkBar />
 
       {/* 메인 레이아웃 */}
-      <div className="flex-1 flex gap-2 p-3 overflow-hidden" style={{ maxHeight: 'calc(100vh - 49px)' }}>
+      <div className="flex-1 flex gap-2 p-3 overflow-hidden min-h-0">
 
         {/* 왼쪽 패널 */}
         <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px', height: '100%', overflow: 'hidden' }}>
@@ -228,12 +228,12 @@ export default function MainLayout() {
 
       {/* 모바일 하단 탭 */}
       <nav className="md:hidden flex border-t shrink-0" style={{ background: 'rgba(26,32,53,0.98)', borderColor: 'rgba(195,195,195,0.1)' }}>
-        {tabs.map(({ to, label, end }) => (
+        {tabs.map(({ to, short, end }) => (
           <NavLink key={to} to={to} end={end}
-            className={({ isActive }) => `flex-1 py-3 text-center text-xs tracking-widest ${isActive ? 'text-white' : 'text-white/30'}`}
-            style={{ fontFamily: 'var(--font-title)' }}
+            className={({ isActive }) => `flex-1 py-3 text-center tracking-wide ${isActive ? 'text-white' : 'text-white/30'}`}
+            style={{ fontFamily: 'var(--font-title)', fontSize: '0.6rem' }}
           >
-            {label}
+            {short}
           </NavLink>
         ))}
       </nav>
