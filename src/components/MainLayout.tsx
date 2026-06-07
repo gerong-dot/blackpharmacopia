@@ -76,7 +76,7 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'var(--dark)' }}>
+    <div className="flex flex-col overflow-hidden" style={{ background: 'var(--dark)', height: '100dvh' }}>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDrawer && <MobileDrawer onClose={() => setShowDrawer(false)} />}
 
@@ -221,11 +221,11 @@ export default function MainLayout() {
       </div>
 
       {/* 모바일 하단 탭 */}
-      <nav className="md:hidden flex border-t shrink-0" style={{ background: 'rgba(26,32,53,0.98)', borderColor: 'rgba(195,195,195,0.1)' }}>
+      <nav className="md:hidden flex border-t shrink-0" style={{ background: 'rgba(26,32,53,0.98)', borderColor: 'rgba(195,195,195,0.1)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {tabs.map(({ to, short, end }) => (
           <NavLink key={to} to={to} end={end}
-            className={({ isActive }) => `flex-1 py-3 text-center tracking-wide ${isActive ? 'text-white' : 'text-white/30'}`}
-            style={{ fontFamily: 'var(--font-title)', fontSize: '0.6rem' }}
+            className={({ isActive }) => `flex-1 py-4 text-center tracking-wide ${isActive ? 'text-white' : 'text-white/30'}`}
+            style={{ fontFamily: 'var(--font-title)', fontSize: '0.65rem' }}
           >
             {short}
           </NavLink>
