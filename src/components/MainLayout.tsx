@@ -76,12 +76,12 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ background: 'var(--dark)', height: '100dvh' }}>
+    <div className="flex flex-col min-h-screen" style={{ background: 'var(--dark)' }}>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDrawer && <MobileDrawer onClose={() => setShowDrawer(false)} />}
 
       {/* 상단 헤더 */}
-      <header className="shrink-0 flex items-center justify-between px-4 py-1.5 border-b" style={{ borderColor: 'rgba(195,195,195,0.1)', background: 'rgba(26,32,53,0.98)' }}>
+      <header className="sticky top-0 z-30 shrink-0 flex items-center justify-between px-4 py-1.5 border-b" style={{ borderColor: 'rgba(195,195,195,0.1)', background: 'rgba(26,32,53,0.98)' }}>
         <div className="flex items-center gap-3">
           <span className="text-white/20 text-xs">✦</span>
           <NavLink to="/main" className="hover:opacity-80 transition-opacity" style={{ fontFamily: 'var(--font-display)', color: 'var(--bg)', fontSize: '1.1rem', letterSpacing: '0.08em', fontStyle: 'italic' }}>
@@ -118,8 +118,8 @@ export default function MainLayout() {
 
       <BookmarkBar />
 
-      {/* 메인 레이아웃 */}
-      <div className="flex-1 flex gap-2 p-3 overflow-hidden min-h-0">
+      {/* 메인 레이아웃 — 모바일: 자연 스크롤 / 데스크탑: 고정 높이 flex */}
+      <div className="flex-1 flex gap-2 p-3 md:overflow-hidden md:min-h-0 pb-16 md:pb-3">
 
         {/* 왼쪽 패널 */}
         <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px', height: '100%', overflow: 'hidden' }}>
@@ -197,7 +197,7 @@ export default function MainLayout() {
         </div>
 
         {/* 오른쪽 패널 */}
-        <div className="flex-1 flex flex-col gap-2 min-w-0 min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-2 min-w-0 md:min-h-0 md:overflow-hidden">
           {/* 데스크탑 전용 상단 탭바 */}
           <div className="hidden md:flex shrink-0 items-center border-b" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
             {tabs.map(({ to, label, end }) => (
@@ -212,7 +212,7 @@ export default function MainLayout() {
             ))}
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
+          <div className="md:flex-1 md:min-h-0 md:overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
             <div className="relative z-10 p-5">
               <Outlet context={{ openLogin: () => setShowLogin(true) }} />
             </div>
@@ -220,11 +220,11 @@ export default function MainLayout() {
         </div>
       </div>
 
-      {/* 모바일 하단 탭 */}
-      <nav className="md:hidden flex border-t shrink-0" style={{ background: 'rgba(26,32,53,0.98)', borderColor: 'rgba(195,195,195,0.1)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      {/* 모바일 하단 탭 — fixed로 항상 하단 고정 */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex border-t" style={{ background: 'rgba(26,32,53,0.98)', borderColor: 'rgba(195,195,195,0.1)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {tabs.map(({ to, short, end }) => (
           <NavLink key={to} to={to} end={end}
-            className={({ isActive }) => `flex-1 py-4 text-center tracking-wide ${isActive ? 'text-white' : 'text-white/30'}`}
+            className={({ isActive }) => `flex-1 py-3 text-center tracking-wide ${isActive ? 'text-white' : 'text-white/30'}`}
             style={{ fontFamily: 'var(--font-title)', fontSize: '0.65rem' }}
           >
             {short}
