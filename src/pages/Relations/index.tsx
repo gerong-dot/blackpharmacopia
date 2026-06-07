@@ -11,6 +11,7 @@ type CharProfile = {
   gender: string
   height: string
   quote: string
+  bio: string
   tags: string[]
   portraitUrl: string
   chibiUrl: string
@@ -30,6 +31,7 @@ type RelData = {
 const DEFAULT_CHAR: CharProfile = {
   name: '이름', subtitle: '역할', age: '', gender: '', height: '',
   quote: '...',
+  bio: '',
   tags: [],
   portraitUrl: '', chibiUrl: '',
   colors: [{ label: 'HAIR', hex: '#333333' }, { label: 'EYE', hex: '#334466' }, { label: 'SKIN', hex: '#f5e6d3' }],
@@ -223,6 +225,23 @@ export default function RelationsPage() {
                     </p>
                 }
               </div>
+
+              {/* 캐릭터 소개 */}
+              {(char.bio || editing) && (
+                <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
+                  {editing
+                    ? <textarea
+                        className="w-full text-xs bg-transparent outline-none resize-none leading-relaxed"
+                        style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', minHeight: '60px' }}
+                        value={char.bio}
+                        onChange={e => updateChar(idx, 'bio', e.target.value)}
+                        placeholder="캐릭터 소개..."
+                        rows={3}
+                      />
+                    : <p className="text-xs leading-relaxed opacity-60 whitespace-pre-line" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{char.bio}</p>
+                  }
+                </div>
+              )}
 
               {/* 태그 */}
               <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
