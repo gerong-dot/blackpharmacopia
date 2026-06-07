@@ -104,7 +104,67 @@ export default function BoardPage() {
         </div>
       </div>
 
-      {/* 게시판 목록 뷰 */}
+      {/* 게시판 탭 — 항상 상단에 표시 */}
+      {boards.length > 0 && (
+        <div className="flex items-center gap-1 flex-wrap">
+          <button
+            onClick={() => setSearchParams({})}
+            className="px-3 py-1.5 text-xs rounded-sm transition-all"
+            style={{
+              fontFamily: 'var(--font-title)', letterSpacing: '0.08em',
+              background: !activeSlug ? 'var(--char-blue)' : 'transparent',
+              color: !activeSlug ? 'white' : 'var(--char-blue)',
+              border: '1px solid rgba(0,17,60,0.2)',
+              opacity: !activeSlug ? 1 : 0.55,
+            }}
+          >
+            ALL
+          </button>
+          {boards.map(board => (
+            <button
+              key={board.slug}
+              onClick={() => setSearchParams({ b: board.slug })}
+              className="px-3 py-1.5 text-xs rounded-sm transition-all"
+              style={{
+                fontFamily: 'var(--font-title)', letterSpacing: '0.08em',
+                background: activeSlug === board.slug ? 'var(--char-blue)' : 'transparent',
+                color: activeSlug === board.slug ? 'white' : 'var(--char-blue)',
+                border: '1px solid rgba(0,17,60,0.2)',
+                opacity: activeSlug === board.slug ? 1 : 0.55,
+              }}
+            >
+              {board.name}
+            </button>
+          ))}
+          {profile?.is_admin && (
+            addingBoard ? null : (
+              <button onClick={() => setAddingBoard(true)}
+                className="px-2 py-1.5 text-xs rounded-sm opacity-30 hover:opacity-60 flex items-center gap-1"
+                style={{ border: '1px dashed rgba(0,17,60,0.2)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+                <Plus size={10} /> 게시판
+              </button>
+            )
+          )}
+        </div>
+      )}
+
+      {/* 게시판 추가 폼 */}
+      {profile?.is_admin && addingBoard && (
+        <form onSubmit={handleAddBoard} className="flex flex-col gap-2 p-3 rounded-sm border" style={{ borderColor: 'rgba(0,17,60,0.12)', borderStyle: 'dashed' }}>
+          <input className="w-full px-3 py-1.5 rounded-sm border text-sm outline-none"
+            style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
+            placeholder="게시판 이름" value={newBoardName} onChange={e => setNewBoardName(e.target.value)} autoFocus />
+          <input className="w-full px-3 py-1.5 rounded-sm border text-sm outline-none"
+            style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
+            placeholder="설명 (선택)" value={newBoardDesc} onChange={e => setNewBoardDesc(e.target.value)} />
+          <div className="flex gap-2">
+            <button type="submit" className="px-4 py-1.5 rounded-sm text-xs text-white" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>추가</button>
+            <button type="button" onClick={() => setAddingBoard(false)} className="px-4 py-1.5 rounded-sm text-xs opacity-50" style={{ border: '1px solid rgba(0,17,60,0.15)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>취소</button>
+          </div>
+        </form>
+      )}
+
+      {/* 게시판 목록 뷰 (board 뷰 + 전체 선택) */}
       {view === 'board' && !activeSlug ? (
         <div className="flex flex-col gap-2">
           {boards.map(board => (
@@ -134,38 +194,6 @@ export default function BoardPage() {
             </div>
           ))}
 
-          {/* 게시판 추가 */}
-          {profile?.is_admin && (
-            addingBoard ? (
-              <form onSubmit={handleAddBoard} className="flex flex-col gap-2 p-3 rounded-sm border" style={{ borderColor: 'rgba(0,17,60,0.12)', borderStyle: 'dashed' }}>
-                <input
-                  className="w-full px-3 py-1.5 rounded-sm border text-sm outline-none"
-                  style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
-                  placeholder="게시판 이름"
-                  value={newBoardName}
-                  onChange={e => setNewBoardName(e.target.value)}
-                  autoFocus
-                />
-                <input
-                  className="w-full px-3 py-1.5 rounded-sm border text-sm outline-none"
-                  style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
-                  placeholder="설명 (선택)"
-                  value={newBoardDesc}
-                  onChange={e => setNewBoardDesc(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <button type="submit" className="px-4 py-1.5 rounded-sm text-xs text-white" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>추가</button>
-                  <button type="button" onClick={() => setAddingBoard(false)} className="px-4 py-1.5 rounded-sm text-xs opacity-50" style={{ border: '1px solid rgba(0,17,60,0.15)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>취소</button>
-                </div>
-              </form>
-            ) : (
-              <button onClick={() => setAddingBoard(true)}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-sm border text-xs opacity-40 hover:opacity-70 transition-opacity"
-                style={{ borderColor: 'rgba(0,17,60,0.1)', borderStyle: 'dashed', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
-                <Plus size={12} /> 게시판 추가
-              </button>
-            )
-          )}
 
           {/* 최근 글 */}
           {posts.length > 0 && (
