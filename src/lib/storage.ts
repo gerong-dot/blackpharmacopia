@@ -1,5 +1,8 @@
 import { supabase } from './supabase'
 
+const settingsCache = new Map<string, string>()
+const pendingFetches = new Map<string, Promise<string>>()
+
 function compressImage(file: File): Promise<Blob> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -48,16 +51,32 @@ export async function uploadImage(file: File, path: string): Promise<string> {
 }
 
 export async function getSiteSetting(key: string): Promise<string> {
-  try {
-    const res = await fetch(`/api/settings?key=${encodeURIComponent(key)}`)
-    if (res.ok) {
-      const { value } = await res.json()
-      return value ?? ''
-    }
-  } catch {}
-  // 폴백: supabase 직접 조회
-  const { data } = await supabase.from('site_settings').select('value').eq('key', key).single()
-  return data?.value ?? ''
+  if (settingsCache.has(key)) return settingsCache.get(key)!
+
+  // 동일 키 중복 요청 방지 — 첫 번째 fetch promise를 재사용
+  if (pendingFetches.has(key)) return pendingFetches.get(key)!
+
+  const fetching = (async () => {
+    try {
+      const res = await fetch(`/api/settings?key=${encodeURIComponent(key)}`)
+      if (res.ok) {
+        const { value } = await res.json()
+        const result = value ?? ''
+        settingsCache.set(key, result)
+        pendingFetches.delete(key)
+        return result
+      }
+    } catch {}
+    // 폴백: supabase 직접 조회
+    const { data } = await supabase.from('site_settings').select('value').eq('key', key).single()
+    const result = data?.value ?? ''
+    settingsCache.set(key, result)
+    pendingFetches.delete(key)
+    return result
+  })()
+
+  pendingFetches.set(key, fetching)
+  return fetching
 }
 
 export async function setSiteSetting(key: string, value: string) {
@@ -70,4 +89,5 @@ export async function setSiteSetting(key: string, value: string) {
     const err = await res.json()
     throw new Error(err.error ?? '저장 실패')
   }
+  settingsCache.set(key, value)
 }
