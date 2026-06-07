@@ -19,7 +19,6 @@ const tabs = [
   { to: '/main/about', label: 'NOTICE', short: 'NOTE' },
   { to: '/main/board', label: 'DIARY', short: 'DIARY' },
   { to: '/main/gallery', label: 'GALLERY', short: 'GALL' },
-  { to: '/main/lore', label: 'LORE', short: 'LORE' },
   { to: '/main/relations', label: 'REL', short: 'REL' },
   { to: '/main/guestbook', label: 'GUEST', short: 'GUEST' },
 ]
@@ -199,7 +198,8 @@ export default function MainLayout() {
 
         {/* 오른쪽 패널 */}
         <div className="flex-1 flex flex-col gap-2 min-w-0 min-h-0 overflow-hidden">
-          <div className="shrink-0 flex items-center border-b overflow-x-auto" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
+          {/* 데스크탑 전용 상단 탭바 */}
+          <div className="hidden md:flex shrink-0 items-center border-b" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
             {tabs.map(({ to, label, end }) => (
               <NavLink key={to} to={to} end={end}
                 className={({ isActive }) =>
@@ -210,12 +210,6 @@ export default function MainLayout() {
                 {label}
               </NavLink>
             ))}
-            {/* 모바일 로그인 버튼 */}
-            {!user && (
-              <button onClick={() => setShowLogin(true)} className="ml-auto text-xs px-3 py-2 text-white/30 hover:text-white/60 md:hidden" style={{ fontFamily: 'var(--font-title)' }}>
-                LOGIN
-              </button>
-            )}
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>

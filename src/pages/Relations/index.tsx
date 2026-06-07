@@ -1,55 +1,78 @@
 import { useEffect, useRef, useState } from 'react'
 import { getSiteSetting, setSiteSetting, uploadImage } from '../../lib/storage'
 import { useAuth } from '../../contexts/AuthContext'
-import { Pencil, Check, X, Camera, Plus } from 'lucide-react'
+import { Pencil, Check, X, Camera, Plus, ChevronDown, ChevronRight } from 'lucide-react'
+import RichEditor from '../../components/RichEditor'
+import DOMPurify from 'dompurify'
 
+// ─── Lore types ───────────────────────────────────────────────
+type LoreSection = { id: string; title: string }
+type LoreEntry   = { id: string; sectionId: string; title: string; content: string }
+
+// ─── Character types ──────────────────────────────────────────
 type ColorSwatch = { label: string; hex: string }
 type CharProfile = {
-  name: string
-  subtitle: string
-  age: string
-  gender: string
-  height: string
-  quote: string
-  bio: string
-  tags: string[]
-  portraitUrl: string
-  chibiUrl: string
+  name: string; subtitle: string; age: string; gender: string; height: string
+  quote: string; bio: string; tags: string[]
+  portraitUrl: string; chibiUrl: string
   colors: ColorSwatch[]
-  facial: string
-  hairDesc: string
-  etc: string
-  feelingsToOther: string  // 상대에 대한 감정
+  facial: string; hairDesc: string; etc: string
+  feelingsToOther: string
 }
-
 type RelData = {
   chars: [CharProfile, CharProfile]
   relationshipDesc: string
   relationshipLabel: string
 }
-
 const DEFAULT_CHAR: CharProfile = {
   name: '이름', subtitle: '역할', age: '', gender: '', height: '',
-  quote: '...',
-  bio: '',
-  tags: [],
+  quote: '...', bio: '', tags: [],
   portraitUrl: '', chibiUrl: '',
   colors: [{ label: 'HAIR', hex: '#333333' }, { label: 'EYE', hex: '#334466' }, { label: 'SKIN', hex: '#f5e6d3' }],
-  facial: '', hairDesc: '', etc: '',
-  feelingsToOther: '',
+  facial: '', hairDesc: '', etc: '', feelingsToOther: '',
 }
-
-const DEFAULT_DATA: RelData = {
+const DEFAULT_REL: RelData = {
   chars: [{ ...DEFAULT_CHAR, name: '캐릭터 A' }, { ...DEFAULT_CHAR, name: '캐릭터 B' }],
-  relationshipDesc: '',
-  relationshipLabel: '관계',
+  relationshipDesc: '', relationshipLabel: '관계',
 }
 
+// ══════════════════════════════════════════════════════════════
 export default function RelationsPage() {
-  const [data, setData] = useState<RelData>(DEFAULT_DATA)
+  const [tab, setTab] = useState<'chars' | 'lore'>('chars')
+  const { profile } = useAuth()
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      {/* 페이지 탭 */}
+      <div className="flex items-center gap-1 mb-6 border-b pb-3" style={{ borderColor: 'rgba(0,17,60,0.1)' }}>
+        {(['chars', 'lore'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className="px-4 py-1.5 text-xs rounded-sm transition-all"
+            style={{
+              fontFamily: 'var(--font-title)', letterSpacing: '0.12em',
+              background: tab === t ? 'var(--char-blue)' : 'transparent',
+              color: tab === t ? 'white' : 'var(--char-blue)',
+              border: '1px solid rgba(0,17,60,0.2)',
+              opacity: tab === t ? 1 : 0.5,
+            }}>
+            {t === 'chars' ? 'CHARACTERS' : 'LORE'}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'chars' ? <CharactersTab profile={profile} /> : <LoreTab profile={profile} />}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════
+// CHARACTERS TAB
+// ══════════════════════════════════════════════════════════════
+function CharactersTab({ profile }: { profile: { is_admin?: boolean } | null }) {
+  const [data, setData] = useState<RelData>(DEFAULT_REL)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState<RelData>(DEFAULT_DATA)
+  const [draft, setDraft] = useState<RelData>(DEFAULT_REL)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState<string | null>(null)
   const r00 = useRef<HTMLInputElement>(null)
@@ -57,15 +80,10 @@ export default function RelationsPage() {
   const r10 = useRef<HTMLInputElement>(null)
   const r11 = useRef<HTMLInputElement>(null)
   const fileRefs = [[r00, r01], [r10, r11]] as const
-  const { profile } = useAuth()
 
   useEffect(() => {
     getSiteSetting('rel_data').then(raw => {
-      if (raw) try {
-        const parsed = JSON.parse(raw)
-        setData(parsed)
-        setDraft(parsed)
-      } catch {}
+      if (raw) try { const p = JSON.parse(raw); setData(p); setDraft(p) } catch {}
       setLoading(false)
     })
   }, [])
@@ -74,11 +92,8 @@ export default function RelationsPage() {
   async function handleSave() {
     setSaving(true)
     await setSiteSetting('rel_data', JSON.stringify(draft))
-    setData(draft)
-    setEditing(false)
-    setSaving(false)
+    setData(draft); setEditing(false); setSaving(false)
   }
-
   function updateChar(idx: 0 | 1, field: keyof CharProfile, value: CharProfile[keyof CharProfile]) {
     setDraft(d => {
       const next = { ...d, chars: [...d.chars] as [CharProfile, CharProfile] }
@@ -86,10 +101,8 @@ export default function RelationsPage() {
       return next
     })
   }
-
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, key: string) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0]; if (!file) return
     setUploading(key)
     try {
       const url = await uploadImage(file, `chars/${key}-${Date.now()}`)
@@ -97,43 +110,27 @@ export default function RelationsPage() {
       const i = parseInt(idx) as 0 | 1
       updateChar(i, type === 'portrait' ? 'portraitUrl' : 'chibiUrl', url)
     } catch (err) { alert('업로드 실패: ' + (err as Error).message) }
-    setUploading(null)
-    e.target.value = ''
+    setUploading(null); e.target.value = ''
   }
-
   function addColor(idx: 0 | 1) {
-    const colors = [...(editing ? draft : data).chars[idx].colors, { label: 'NEW', hex: '#888888' }]
-    updateChar(idx, 'colors', colors)
+    updateChar(idx, 'colors', [...(editing ? draft : data).chars[idx].colors, { label: 'NEW', hex: '#888888' }])
   }
-
-  function updateColor(charIdx: 0 | 1, colorIdx: number, field: 'label' | 'hex', val: string) {
-    const colors = [...draft.chars[charIdx].colors]
-    colors[colorIdx] = { ...colors[colorIdx], [field]: val }
-    updateChar(charIdx, 'colors', colors)
+  function updateColor(ci: 0 | 1, pi: number, field: 'label' | 'hex', val: string) {
+    const colors = [...draft.chars[ci].colors]; colors[pi] = { ...colors[pi], [field]: val }
+    updateChar(ci, 'colors', colors)
   }
-
-  function removeColor(charIdx: 0 | 1, colorIdx: number) {
-    updateChar(charIdx, 'colors', draft.chars[charIdx].colors.filter((_, i) => i !== colorIdx))
+  function removeColor(ci: 0 | 1, pi: number) {
+    updateChar(ci, 'colors', draft.chars[ci].colors.filter((_, i) => i !== pi))
   }
 
   const cur = editing ? draft : data
-
   if (loading) return <div className="py-20 text-center opacity-30" style={{ fontFamily: 'var(--font-deco)', fontSize: '1.5rem', color: 'var(--char-blue)' }}>loading...</div>
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: 'var(--char-blue)' }}>Characters</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="h-px w-8" style={{ background: 'var(--char-red)' }} />
-            <span style={{ color: 'var(--char-red)', fontSize: '0.6rem' }}>✦</span>
-            <div className="h-px w-8" style={{ background: 'var(--char-red)', opacity: 0.3 }} />
-          </div>
-        </div>
-        {profile?.is_admin && (
-          editing ? (
+    <div>
+      {profile?.is_admin && (
+        <div className="flex justify-end mb-4">
+          {editing ? (
             <div className="flex gap-2">
               <button onClick={() => setEditing(false)} className="px-3 py-1.5 text-xs rounded-sm opacity-50" style={{ border: '1px solid rgba(0,17,60,0.2)', color: 'var(--char-blue)', fontFamily: 'var(--font-title)' }}>
                 <X size={11} className="inline mr-1" />취소
@@ -146,17 +143,16 @@ export default function RelationsPage() {
             <button onClick={startEdit} className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-sm hover:opacity-70" style={{ border: '1px solid rgba(0,17,60,0.2)', color: 'var(--char-blue)', fontFamily: 'var(--font-title)' }}>
               <Pencil size={11} /> 편집
             </button>
-          )
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      {/* 두 캐릭터 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {([0, 1] as const).map(idx => {
           const char = cur.chars[idx]
           return (
             <div key={idx} className="rounded-sm border overflow-hidden" style={{ borderColor: 'rgba(0,17,60,0.12)', background: 'rgba(0,17,60,0.02)' }}>
-              {/* 상단: 이름 + 기본 정보 */}
+              {/* 이름 + 기본 정보 */}
               <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
                 {editing ? (
                   <div className="flex flex-col gap-2">
@@ -177,14 +173,14 @@ export default function RelationsPage() {
                     <p className="text-sm opacity-50 mt-0.5" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{char.subtitle}</p>
                     {(char.age || char.gender || char.height) && (
                       <p className="text-xs mt-2 opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', letterSpacing: '0.05em' }}>
-                        {[char.age && `${char.age}세`, char.gender, char.height && `${char.height}`].filter(Boolean).join(' / ')}
+                        {[char.age && `${char.age}세`, char.gender, char.height].filter(Boolean).join(' / ')}
                       </p>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* 이미지 영역 */}
+              {/* 이미지 */}
               <div className="grid grid-cols-2 gap-0">
                 {(['portrait', 'chibi'] as const).map((type, ti) => {
                   const imgUrl = type === 'portrait' ? char.portraitUrl : char.chibiUrl
@@ -230,14 +226,10 @@ export default function RelationsPage() {
               {(char.bio || editing) && (
                 <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
                   {editing
-                    ? <textarea
-                        className="w-full text-xs bg-transparent outline-none resize-none leading-relaxed"
+                    ? <textarea className="w-full text-xs bg-transparent outline-none resize-none leading-relaxed"
                         style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', minHeight: '60px' }}
-                        value={char.bio}
-                        onChange={e => updateChar(idx, 'bio', e.target.value)}
-                        placeholder="캐릭터 소개..."
-                        rows={3}
-                      />
+                        value={char.bio} onChange={e => updateChar(idx, 'bio', e.target.value)}
+                        placeholder="캐릭터 소개..." rows={3} />
                     : <p className="text-xs leading-relaxed opacity-60 whitespace-pre-line" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{char.bio}</p>
                   }
                 </div>
@@ -268,8 +260,8 @@ export default function RelationsPage() {
                       {editing ? (
                         <>
                           <input type="color" value={col.hex} onChange={e => updateColor(idx, ci, 'hex', e.target.value)}
-                            className="w-7 h-7 rounded-sm cursor-pointer border-0 p-0" style={{ borderRadius: '2px' }} />
-                          <input className="text-center text-xs bg-transparent outline-none border-b w-10" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem', borderColor: 'rgba(0,17,60,0.15)' }}
+                            className="w-7 h-7 cursor-pointer border-0 p-0" style={{ borderRadius: '2px' }} />
+                          <input className="text-center bg-transparent outline-none border-b w-10" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem', borderColor: 'rgba(0,17,60,0.15)' }}
                             value={col.label} onChange={e => updateColor(idx, ci, 'label', e.target.value)} />
                           <button onClick={() => removeColor(idx, ci)} className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 text-white opacity-0 group-hover/col:opacity-100 flex items-center justify-center">
                             <X size={7} />
@@ -278,13 +270,13 @@ export default function RelationsPage() {
                       ) : (
                         <>
                           <div className="w-7 h-7 rounded-sm border" style={{ background: col.hex, borderColor: 'rgba(0,17,60,0.1)' }} />
-                          <span className="text-center opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem', letterSpacing: '0.05em' }}>{col.label}</span>
+                          <span className="opacity-40" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem', letterSpacing: '0.05em' }}>{col.label}</span>
                         </>
                       )}
                     </div>
                   ))}
                   {editing && (
-                    <button onClick={() => addColor(idx)} className="w-7 h-7 rounded-sm border flex items-center justify-center opacity-30 hover:opacity-60 transition-opacity" style={{ borderColor: 'rgba(0,17,60,0.2)', borderStyle: 'dashed', color: 'var(--char-blue)' }}>
+                    <button onClick={() => addColor(idx)} className="w-7 h-7 rounded-sm border flex items-center justify-center opacity-30 hover:opacity-60" style={{ borderColor: 'rgba(0,17,60,0.2)', borderStyle: 'dashed', color: 'var(--char-blue)' }}>
                       <Plus size={10} />
                     </button>
                   )}
@@ -342,6 +334,173 @@ export default function RelationsPage() {
                 value={draft.relationshipDesc} onChange={e => setDraft(d => ({ ...d, relationshipDesc: e.target.value }))} placeholder="관계 설명..." rows={3} />
             : <p className="text-sm leading-relaxed opacity-60" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{cur.relationshipDesc}</p>
           }
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════
+// LORE TAB
+// ══════════════════════════════════════════════════════════════
+function LoreTab({ profile }: { profile: { is_admin?: boolean } | null }) {
+  const [sections, setSections]   = useState<LoreSection[]>([])
+  const [entries, setEntries]     = useState<LoreEntry[]>([])
+  const [activeSection, setActiveSection] = useState('')
+  const [expanded, setExpanded]   = useState<Set<string>>(new Set())
+  const [loading, setLoading]     = useState(true)
+  const [addingSection, setAddingSection] = useState(false)
+  const [newSectionTitle, setNewSectionTitle] = useState('')
+  const [addingEntry, setAddingEntry] = useState(false)
+  const [editingEntry, setEditingEntry] = useState<LoreEntry | null>(null)
+  const [entryTitle, setEntryTitle] = useState('')
+  const [entryContent, setEntryContent] = useState('')
+
+  useEffect(() => {
+    Promise.all([getSiteSetting('lore_sections'), getSiteSetting('lore_entries')]).then(([s, e]) => {
+      const sec: LoreSection[] = s ? (() => { try { return JSON.parse(s) } catch { return [] } })() : []
+      const ent: LoreEntry[]   = e ? (() => { try { return JSON.parse(e) } catch { return [] } })() : []
+      setSections(sec); setEntries(ent)
+      if (sec.length > 0) setActiveSection(sec[0].id)
+      setLoading(false)
+    })
+  }, [])
+
+  async function saveSections(next: LoreSection[]) { setSections(next); await setSiteSetting('lore_sections', JSON.stringify(next)) }
+  async function saveEntries(next: LoreEntry[]) { setEntries(next); await setSiteSetting('lore_entries', JSON.stringify(next)) }
+
+  async function handleAddSection(e: React.FormEvent) {
+    e.preventDefault(); if (!newSectionTitle.trim()) return
+    const next = [...sections, { id: `s-${Date.now()}`, title: newSectionTitle.trim() }]
+    await saveSections(next)
+    if (sections.length === 0) setActiveSection(next[0].id)
+    setNewSectionTitle(''); setAddingSection(false)
+  }
+  async function handleDeleteSection(id: string) {
+    if (!confirm('섹션과 하위 항목을 모두 삭제하시겠습니까?')) return
+    await saveSections(sections.filter(s => s.id !== id))
+    await saveEntries(entries.filter(e => e.sectionId !== id))
+    if (activeSection === id) setActiveSection(sections[0]?.id ?? '')
+  }
+  async function handleSaveEntry(e: React.FormEvent) {
+    e.preventDefault(); if (!entryTitle.trim()) return
+    if (editingEntry) {
+      await saveEntries(entries.map(en => en.id === editingEntry.id ? { ...en, title: entryTitle, content: entryContent } : en))
+      setEditingEntry(null)
+    } else {
+      await saveEntries([...entries, { id: `e-${Date.now()}`, sectionId: activeSection, title: entryTitle, content: entryContent }])
+      setAddingEntry(false)
+    }
+    setEntryTitle(''); setEntryContent('')
+  }
+  function startEditEntry(entry: LoreEntry) { setEditingEntry(entry); setEntryTitle(entry.title); setEntryContent(entry.content); setAddingEntry(false) }
+  function cancelEdit() { setEditingEntry(null); setAddingEntry(false); setEntryTitle(''); setEntryContent('') }
+  async function handleDeleteEntry(id: string) { await saveEntries(entries.filter(e => e.id !== id)) }
+  function toggleExpand(id: string) {
+    setExpanded(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+
+  const sectionEntries = entries.filter(e => e.sectionId === activeSection)
+
+  if (loading) return <div className="py-20 text-center opacity-30" style={{ fontFamily: 'var(--font-deco)', fontSize: '1.5rem', color: 'var(--char-blue)' }}>loading...</div>
+
+  return (
+    <div className="max-w-3xl">
+      {/* 섹션 탭 */}
+      <div className="flex items-center gap-1 flex-wrap mb-6">
+        {sections.map(sec => (
+          <div key={sec.id} className="relative group flex items-center">
+            <button onClick={() => setActiveSection(sec.id)} className="px-3 py-1.5 text-xs rounded-sm transition-all"
+              style={{ fontFamily: 'var(--font-title)', letterSpacing: '0.1em', background: activeSection === sec.id ? 'var(--char-blue)' : 'transparent', color: activeSection === sec.id ? 'white' : 'var(--char-blue)', border: '1px solid rgba(0,17,60,0.2)', opacity: activeSection === sec.id ? 1 : 0.55 }}>
+              {sec.title}
+            </button>
+            {profile?.is_admin && (
+              <button onClick={() => handleDeleteSection(sec.id)} className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                <X size={8} />
+              </button>
+            )}
+          </div>
+        ))}
+        {profile?.is_admin && (
+          addingSection ? (
+            <form onSubmit={handleAddSection} className="flex items-center gap-1">
+              <input autoFocus className="px-2 py-1 text-xs border rounded-sm outline-none" style={{ borderColor: 'rgba(0,17,60,0.2)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)', width: '90px' }}
+                placeholder="섹션명" value={newSectionTitle} onChange={e => setNewSectionTitle(e.target.value)} />
+              <button type="submit" className="p-1 hover:opacity-80" style={{ color: 'var(--char-red)' }}><Check size={13} /></button>
+              <button type="button" onClick={() => setAddingSection(false)} className="p-1 opacity-40"><X size={13} /></button>
+            </form>
+          ) : (
+            <button onClick={() => setAddingSection(true)} className="px-2 py-1.5 text-xs rounded-sm opacity-30 hover:opacity-60 flex items-center gap-1"
+              style={{ border: '1px dashed rgba(0,17,60,0.2)', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+              <Plus size={10} /> 섹션
+            </button>
+          )
+        )}
+      </div>
+
+      {/* 항목 목록 */}
+      {sections.length === 0 ? (
+        <p className="text-center py-16 opacity-30 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
+          {profile?.is_admin ? '섹션을 추가해 설정집을 시작해보세요.' : '아직 설정집이 없습니다.'}
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {sectionEntries.length === 0 && !addingEntry && (
+            <p className="text-center py-10 opacity-30 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
+              {profile?.is_admin ? '항목을 추가해보세요.' : '아직 항목이 없습니다.'}
+            </p>
+          )}
+          {sectionEntries.map(entry => (
+            <div key={entry.id} className="border rounded-sm overflow-hidden group" style={{ borderColor: 'rgba(0,17,60,0.12)' }}>
+              {editingEntry?.id === entry.id ? (
+                <form onSubmit={handleSaveEntry} className="p-4 flex flex-col gap-3">
+                  <input autoFocus className="w-full px-3 py-2 border rounded-sm text-sm outline-none" style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}
+                    value={entryTitle} onChange={e => setEntryTitle(e.target.value)} placeholder="제목" />
+                  <RichEditor value={entryContent} onChange={setEntryContent} />
+                  <div className="flex gap-2 justify-end">
+                    <button type="button" onClick={cancelEdit} className="px-3 py-1.5 text-xs opacity-50 rounded-sm" style={{ border: '1px solid rgba(0,17,60,0.15)', color: 'var(--char-blue)', fontFamily: 'var(--font-title)' }}>취소</button>
+                    <button type="submit" className="px-4 py-1.5 text-xs text-white rounded-sm" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>저장</button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <button onClick={() => toggleExpand(entry.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-black/5 transition-colors" style={{ background: 'rgba(0,17,60,0.02)' }}>
+                    <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}>{entry.title}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {profile?.is_admin && (
+                        <>
+                          <span onClick={e => { e.stopPropagation(); startEditEntry(entry) }} className="opacity-0 group-hover:opacity-40 hover:!opacity-70 transition-opacity p-1" style={{ color: 'var(--char-blue)' }}><Pencil size={11} /></span>
+                          <span onClick={e => { e.stopPropagation(); handleDeleteEntry(entry.id) }} className="opacity-0 group-hover:opacity-40 hover:!opacity-70 transition-opacity p-1" style={{ color: 'var(--char-red)' }}><X size={11} /></span>
+                        </>
+                      )}
+                      {expanded.has(entry.id) ? <ChevronDown size={14} style={{ color: 'var(--char-blue)', opacity: 0.4 }} /> : <ChevronRight size={14} style={{ color: 'var(--char-blue)', opacity: 0.4 }} />}
+                    </div>
+                  </button>
+                  {expanded.has(entry.id) && entry.content && (
+                    <div className="px-5 py-4 border-t post-content" style={{ borderColor: 'rgba(0,17,60,0.08)' }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(entry.content) }} />
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+          {profile?.is_admin && addingEntry && (
+            <form onSubmit={handleSaveEntry} className="border rounded-sm p-4 flex flex-col gap-3" style={{ borderColor: 'rgba(0,17,60,0.12)', borderStyle: 'dashed' }}>
+              <input autoFocus className="w-full px-3 py-2 border rounded-sm text-sm outline-none" style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-serif)', color: 'var(--char-blue)' }}
+                value={entryTitle} onChange={e => setEntryTitle(e.target.value)} placeholder="제목" />
+              <RichEditor value={entryContent} onChange={setEntryContent} />
+              <div className="flex gap-2 justify-end">
+                <button type="button" onClick={cancelEdit} className="px-3 py-1.5 text-xs opacity-50 rounded-sm" style={{ border: '1px solid rgba(0,17,60,0.15)', color: 'var(--char-blue)', fontFamily: 'var(--font-title)' }}>취소</button>
+                <button type="submit" className="px-4 py-1.5 text-xs text-white rounded-sm" style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}>추가</button>
+              </div>
+            </form>
+          )}
+          {profile?.is_admin && !addingEntry && !editingEntry && (
+            <button onClick={() => setAddingEntry(true)} className="flex items-center gap-1.5 px-4 py-3 rounded-sm border text-xs opacity-40 hover:opacity-70 transition-opacity"
+              style={{ borderColor: 'rgba(0,17,60,0.1)', borderStyle: 'dashed', fontFamily: 'var(--font-title)', color: 'var(--char-blue)' }}>
+              <Plus size={12} /> 항목 추가
+            </button>
+          )}
         </div>
       )}
     </div>
