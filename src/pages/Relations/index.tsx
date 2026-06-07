@@ -55,7 +55,7 @@ export default function RelationsPage() {
               border: '1px solid rgba(0,17,60,0.2)',
               opacity: tab === t ? 1 : 0.5,
             }}>
-            {t === 'chars' ? 'CHARACTERS' : 'LORE'}
+            {t === 'chars' ? 'ELCAL<' : 'LORE'}
           </button>
         ))}
       </div>
