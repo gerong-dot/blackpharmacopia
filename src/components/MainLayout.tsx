@@ -119,7 +119,7 @@ export default function MainLayout() {
       <BookmarkBar />
 
       {/* 메인 레이아웃 — 모바일: 자연 스크롤 / 데스크탑: 고정 높이 flex */}
-      <div className="flex-1 flex gap-2 p-3 md:overflow-hidden md:min-h-0 pb-16 md:pb-3">
+      <div className="flex-1 flex gap-2 p-3 md:overflow-hidden md:min-h-0 pb-20 md:pb-3">
 
         {/* 왼쪽 패널 */}
         <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px', height: '100%', overflow: 'hidden' }}>
