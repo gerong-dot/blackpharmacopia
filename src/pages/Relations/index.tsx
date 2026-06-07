@@ -187,7 +187,7 @@ export default function RelationsPage() {
                 {(['portrait', 'chibi'] as const).map((type, ti) => {
                   const imgUrl = type === 'portrait' ? char.portraitUrl : char.chibiUrl
                   const refKey = `${type}-${idx}`
-                  const fileRef = fileRefs[idx][ti]
+                  const fileRef = fileRefs[idx][ti as 0 | 1]
                   return (
                     <div key={type} className="relative group aspect-square overflow-hidden border-r last:border-r-0" style={{ borderColor: 'rgba(0,17,60,0.08)', background: 'rgba(0,17,60,0.03)' }}>
                       {imgUrl
