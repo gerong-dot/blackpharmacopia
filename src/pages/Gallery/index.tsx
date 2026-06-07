@@ -50,7 +50,13 @@ export default function GalleryPage() {
     if (!file) return
     setUploading(true)
     try {
-      const path = `gallery/${Date.now()}-${file.name.replace(/\s/g, '_').replace(/\.[^.]+$/, '')}`
+      const safeName = file.name
+        .replace(/\.[^.]+$/, '')
+        .replace(/[^\x20-\x7E]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9_\-]/g, '')
+        .slice(0, 40) || 'image'
+      const path = `gallery/${Date.now()}-${safeName}`
       const url = await uploadImage(file, path)
       await supabase.from('gallery').insert({ url, caption: caption.trim() })
       setCaption('')
