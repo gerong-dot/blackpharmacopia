@@ -10,6 +10,7 @@ import MobileDrawer from './MobileDrawer'
 import { uploadImage } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 import MiniGuestbook from './MiniGuestbook'
+import BookmarkBar from './BookmarkBar'
 
 
 const tabs = [
@@ -98,6 +99,8 @@ export default function MainLayout() {
           </button>
         </div>
       </header>
+
+      <BookmarkBar />
 
       {/* 메인 레이아웃 */}
       <div className="flex-1 flex gap-2 p-3 overflow-hidden" style={{ maxHeight: 'calc(100vh - 49px)' }}>
