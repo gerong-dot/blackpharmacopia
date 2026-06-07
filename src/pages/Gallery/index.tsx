@@ -167,16 +167,14 @@ export default function GalleryPage() {
               value={caption}
               onChange={e => setCaption(e.target.value)}
             />
-            <button
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs text-white disabled:opacity-50"
+            <label
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs text-white cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
               style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}
             >
               {uploading ? <Loader size={13} className="animate-spin" /> : <Plus size={13} />}
               {uploading ? '업로드 중...' : '이미지 업로드'}
-            </button>
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+              <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
+            </label>
           </div>
         )}
       </div>
