@@ -41,14 +41,7 @@ function compressImage(file: File): Promise<Blob> {
 
 export async function uploadImage(file: File, path: string): Promise<string> {
   const compressed = await compressImage(file)
-  // 경로의 파일명 부분에서 ASCII 외 문자 제거
-  const parts = path.split('/')
-  const lastName = parts[parts.length - 1]
-    .replace(/[^\x20-\x7E]/g, '')
-    .replace(/[^a-zA-Z0-9_\-]/g, '_')
-    .replace(/^_+|_+$/g, '') || 'file'
-  parts[parts.length - 1] = lastName
-  const filePath = `${parts.join('/')}.jpg`
+  const filePath = `${path}.jpg`
 
   // 서버에서 서명 URL 발급받아 Supabase에 직접 업로드 (서버리스 바디 제한 우회)
   const urlRes = await fetch('/api/get-upload-url', {
