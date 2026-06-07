@@ -141,6 +141,10 @@ body {
 .post-content th { background: rgba(0,17,60,0.06); font-weight: 700; }
 
 /* 스크롤바 */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(195,195,195,0.2); border-radius: 2px; }
+
+/* 탭바 가로 스크롤바 숨기기 */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

@@ -119,7 +119,7 @@ export default function MainLayout() {
       <BookmarkBar />
 
       {/* 메인 레이아웃 — 모바일: 자연 스크롤 / 데스크탑: 고정 높이 flex */}
-      <div className="flex-1 flex gap-2 p-3 md:overflow-hidden md:min-h-0 pb-20 md:pb-3">
+      <div className="flex-1 flex gap-2 p-3 md:overflow-hidden md:min-h-0">
 
         {/* 왼쪽 패널 */}
         <div className="hidden md:flex flex-col gap-2" style={{ width: '220px', minWidth: '220px', height: '100%', overflow: 'hidden' }}>
@@ -198,18 +198,23 @@ export default function MainLayout() {
 
         {/* 오른쪽 패널 */}
         <div className="flex-1 flex flex-col gap-2 min-w-0 md:min-h-0 md:overflow-hidden">
-          {/* 데스크탑 전용 상단 탭바 */}
-          <div className="hidden md:flex shrink-0 items-center border-b" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
+          {/* 상단 탭바 — 모바일은 가로 스크롤, 데스크탑은 일반 flex */}
+          <div className="shrink-0 flex items-center border-b overflow-x-auto scrollbar-none" style={{ borderColor: 'rgba(195,195,195,0.1)' }}>
             {tabs.map(({ to, label, end }) => (
               <NavLink key={to} to={to} end={end}
                 className={({ isActive }) =>
-                  `px-4 py-2 text-xs tracking-[0.15em] transition-all border-b-2 ${isActive ? 'border-[var(--char-red)] text-white' : 'border-transparent text-white/30 hover:text-white/60'}`
+                  `shrink-0 px-4 py-2 text-xs tracking-[0.15em] transition-all border-b-2 ${isActive ? 'border-[var(--char-red)] text-white' : 'border-transparent text-white/30 hover:text-white/60'}`
                 }
                 style={{ fontFamily: 'var(--font-title)' }}
               >
                 {label}
               </NavLink>
             ))}
+            {!user && (
+              <button onClick={() => setShowLogin(true)} className="shrink-0 ml-auto text-xs px-3 py-2 text-white/30 hover:text-white/60 md:hidden" style={{ fontFamily: 'var(--font-title)' }}>
+                LOGIN
+              </button>
+            )}
           </div>
 
           <div className="md:flex-1 md:min-h-0 md:overflow-y-scroll paper-panel rounded-sm" style={{ background: 'var(--paper)' }}>
@@ -219,18 +224,6 @@ export default function MainLayout() {
           </div>
         </div>
       </div>
-
-      {/* 모바일 하단 탭 — fixed로 항상 하단 고정 */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex border-t" style={{ background: 'rgba(26,32,53,0.98)', borderColor: 'rgba(195,195,195,0.1)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        {tabs.map(({ to, short, end }) => (
-          <NavLink key={to} to={to} end={end}
-            className={({ isActive }) => `flex-1 py-3 text-center tracking-wide ${isActive ? 'text-white' : 'text-white/30'}`}
-            style={{ fontFamily: 'var(--font-title)', fontSize: '0.65rem' }}
-          >
-            {short}
-          </NavLink>
-        ))}
-      </nav>
 
       <MusicPlayer />
       <CursorFollower enabled={customCursor} />
