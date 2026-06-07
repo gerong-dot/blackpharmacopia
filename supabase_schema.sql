@@ -66,9 +66,9 @@ create policy "posts_delete" on public.posts
     exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
   );
 
--- guestbook: 로그인 유저 조회/작성, 본인 글만 삭제
+-- guestbook: 누구나 조회 가능, 로그인 유저만 작성, 본인 글만 삭제
 create policy "guestbook_select" on public.guestbook
-  for select using (auth.role() = 'authenticated');
+  for select using (true);
 
 create policy "guestbook_insert" on public.guestbook
   for insert with check (auth.uid() = author_id);

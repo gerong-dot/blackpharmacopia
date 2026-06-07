@@ -54,24 +54,31 @@ export default function GuestbookPage() {
       </h1>
 
       {/* 작성 폼 */}
-      <form onSubmit={handleSubmit} className="mb-10 flex gap-2">
-        <input
-          className="flex-1 px-4 py-2 rounded border text-sm outline-none bg-white focus:border-black/30 transition-colors"
-          style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
-          placeholder="방명록을 남겨주세요..."
-          value={text}
-          onChange={e => setText(e.target.value)}
-          maxLength={200}
-        />
-        <button
-          type="submit"
-          disabled={submitting || !text.trim()}
-          className="px-5 py-2 rounded text-sm text-white transition-opacity disabled:opacity-40"
-          style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}
-        >
-          남기기
-        </button>
-      </form>
+      {profile ? (
+        <form onSubmit={handleSubmit} className="mb-10 flex gap-2">
+          <input
+            className="flex-1 px-4 py-2 rounded border text-sm outline-none bg-white focus:border-black/30 transition-colors"
+            style={{ borderColor: 'rgba(0,17,60,0.15)', fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}
+            placeholder="방명록을 남겨주세요..."
+            value={text}
+            onChange={e => setText(e.target.value)}
+            maxLength={200}
+          />
+          <button
+            type="submit"
+            disabled={submitting || !text.trim()}
+            className="px-5 py-2 rounded text-sm text-white transition-opacity disabled:opacity-40"
+            style={{ background: 'var(--char-red)', fontFamily: 'var(--font-title)' }}
+          >
+            남기기
+          </button>
+        </form>
+      ) : (
+        <p className="mb-10 text-sm opacity-40 text-center py-4 rounded border border-dashed"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)', borderColor: 'rgba(0,17,60,0.15)' }}>
+          로그인 후 방명록을 남길 수 있어요
+        </p>
+      )}
 
       {/* 목록 */}
       {loading ? (
