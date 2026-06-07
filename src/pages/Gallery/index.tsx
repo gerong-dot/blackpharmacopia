@@ -157,7 +157,14 @@ export default function GalleryPage() {
       )}
 
       <div className="flex items-center justify-between mb-6">
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: 'var(--char-blue)' }}>Gallery</h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: 'var(--char-blue)' }}>Gallery</h1>
+          {items.some(i => sensitiveIds.has(i.id)) && (
+            <span className="text-xs opacity-30" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
+              ✦ 일부 이미지는 성인/스포일러 내용을 포함합니다
+            </span>
+          )}
+        </div>
         {profile?.is_admin && (
           <div className="flex items-center gap-2">
             <input
@@ -208,11 +215,11 @@ export default function GalleryPage() {
                   {/* 이미 열린 민감 이미지 - 다시 숨기기 버튼 */}
                   {isSensitive && isRevealed && (
                     <button
-                      className="absolute top-2 left-2 p-1 rounded-sm bg-black/50 text-white/60 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 left-2 p-2 rounded-sm bg-black/50 text-white/60 hover:text-white transition-opacity"
                       onClick={e => { e.stopPropagation(); toggleReveal(item.id) }}
                       title="다시 숨기기"
                     >
-                      <Eye size={12} />
+                      <Eye size={13} />
                     </button>
                   )}
                 </div>
@@ -220,20 +227,20 @@ export default function GalleryPage() {
                   <p className="text-xs px-2 py-1 opacity-50" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{item.caption}</p>
                 )}
                 {profile?.is_admin && (
-                  <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 right-2 flex flex-col gap-1">
                     {/* 민감 토글 */}
                     <button
                       onClick={() => toggleSensitive(item.id)}
                       className={`p-1.5 rounded-sm text-white transition-colors ${isSensitive ? 'bg-amber-600/80' : 'bg-black/50'}`}
                       title={isSensitive ? '민감 해제' : '성인/스포 블러'}
                     >
-                      <EyeOff size={11} />
+                      <EyeOff size={13} />
                     </button>
                     <button
                       onClick={() => handleDelete(item.id, item.url)}
-                      className="p-1.5 rounded-sm bg-black/50 text-white"
+                      className="p-2 rounded-sm bg-black/50 text-white"
                     >
-                      <Trash2 size={11} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 )}
@@ -243,12 +250,6 @@ export default function GalleryPage() {
         </div>
       )}
 
-      {/* 성인/스포 안내 */}
-      {items.some(i => sensitiveIds.has(i.id)) && (
-        <p className="text-center mt-6 text-xs opacity-30" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
-          ✦ 일부 이미지는 성인/스포일러 내용을 포함할 수 있습니다. 클릭하면 공개됩니다.
-        </p>
-      )}
     </div>
   )
 }

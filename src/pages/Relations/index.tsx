@@ -55,7 +55,7 @@ export default function RelationsPage() {
               border: '1px solid rgba(0,17,60,0.2)',
               opacity: tab === t ? 1 : 0.5,
             }}>
-            {t === 'chars' ? 'ELCAL<' : 'LORE'}
+            {t === 'chars' ? 'ELCAL' : 'LORE'}
           </button>
         ))}
       </div>
@@ -194,7 +194,7 @@ function CharactersTab({ profile }: { profile: { is_admin?: boolean } | null }) 
                       }
                       {editing && (
                         <>
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                          <div className="absolute inset-0 bg-black/40 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                             onClick={() => fileRef.current?.click()}>
                             {uploading === refKey
                               ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -263,7 +263,7 @@ function CharactersTab({ profile }: { profile: { is_admin?: boolean } | null }) 
                             className="w-7 h-7 cursor-pointer border-0 p-0" style={{ borderRadius: '2px' }} />
                           <input className="text-center bg-transparent outline-none border-b w-10" style={{ fontFamily: 'var(--font-title)', color: 'var(--char-blue)', fontSize: '0.55rem', borderColor: 'rgba(0,17,60,0.15)' }}
                             value={col.label} onChange={e => updateColor(idx, ci, 'label', e.target.value)} />
-                          <button onClick={() => removeColor(idx, ci)} className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 text-white opacity-0 group-hover/col:opacity-100 flex items-center justify-center">
+                          <button onClick={() => removeColor(idx, ci)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white opacity-60 flex items-center justify-center">
                             <X size={7} />
                           </button>
                         </>
@@ -415,7 +415,7 @@ function LoreTab({ profile }: { profile: { is_admin?: boolean } | null }) {
               {sec.title}
             </button>
             {profile?.is_admin && (
-              <button onClick={() => handleDeleteSection(sec.id)} className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+              <button onClick={() => handleDeleteSection(sec.id)} className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-600 text-white opacity-70 flex items-center justify-center z-10">
                 <X size={8} />
               </button>
             )}
@@ -469,8 +469,8 @@ function LoreTab({ profile }: { profile: { is_admin?: boolean } | null }) {
                     <div className="flex items-center gap-2 shrink-0">
                       {profile?.is_admin && (
                         <>
-                          <span onClick={e => { e.stopPropagation(); startEditEntry(entry) }} className="opacity-0 group-hover:opacity-40 hover:!opacity-70 transition-opacity p-1" style={{ color: 'var(--char-blue)' }}><Pencil size={11} /></span>
-                          <span onClick={e => { e.stopPropagation(); handleDeleteEntry(entry.id) }} className="opacity-0 group-hover:opacity-40 hover:!opacity-70 transition-opacity p-1" style={{ color: 'var(--char-red)' }}><X size={11} /></span>
+                          <span onClick={e => { e.stopPropagation(); startEditEntry(entry) }} className="opacity-40 hover:opacity-80 transition-opacity p-2" style={{ color: 'var(--char-blue)' }}><Pencil size={13} /></span>
+                          <span onClick={e => { e.stopPropagation(); handleDeleteEntry(entry.id) }} className="opacity-40 hover:opacity-80 transition-opacity p-2" style={{ color: 'var(--char-red)' }}><X size={13} /></span>
                         </>
                       )}
                       {expanded.has(entry.id) ? <ChevronDown size={14} style={{ color: 'var(--char-blue)', opacity: 0.4 }} /> : <ChevronRight size={14} style={{ color: 'var(--char-blue)', opacity: 0.4 }} />}
