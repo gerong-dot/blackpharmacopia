@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { uploadImage } from '../../lib/storage'
+import { uploadImage, getSiteSetting, setSiteSetting } from '../../lib/storage'
 import { useAuth } from '../../contexts/AuthContext'
-import { Trash2, Plus, Loader, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Trash2, Plus, Loader, X, ChevronLeft, ChevronRight, EyeOff, Eye } from 'lucide-react'
 import { getCached, setCached, invalidateCache } from '../../lib/queryCache'
 
 type GalleryItem = { id: string; url: string; caption: string; created_at: string }
@@ -13,10 +13,17 @@ export default function GalleryPage() {
   const [uploading, setUploading] = useState(false)
   const [caption, setCaption] = useState('')
   const [lightbox, setLightbox] = useState<number | null>(null)
+  const [sensitiveIds, setSensitiveIds] = useState<Set<string>>(new Set())
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set())
   const inputRef = useRef<HTMLInputElement>(null)
   const { profile } = useAuth()
 
-  useEffect(() => { fetchItems() }, [])
+  useEffect(() => {
+    fetchItems()
+    getSiteSetting('gallery_sensitive').then(raw => {
+      if (raw) try { setSensitiveIds(new Set(JSON.parse(raw))) } catch {}
+    })
+  }, [])
 
   useEffect(() => {
     if (lightbox === null) return
@@ -71,6 +78,39 @@ export default function GalleryPage() {
     const next = items.filter(i => i.id !== id)
     setCached('gallery', next)
     setItems(next)
+    // 민감 목록에서도 제거
+    if (sensitiveIds.has(id)) {
+      const next = new Set(sensitiveIds)
+      next.delete(id)
+      setSensitiveIds(next)
+      await setSiteSetting('gallery_sensitive', JSON.stringify([...next]))
+    }
+  }
+
+  async function toggleSensitive(id: string) {
+    const next = new Set(sensitiveIds)
+    next.has(id) ? next.delete(id) : next.add(id)
+    setSensitiveIds(next)
+    await setSiteSetting('gallery_sensitive', JSON.stringify([...next]))
+  }
+
+  function toggleReveal(id: string) {
+    setRevealedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  function handleImageClick(idx: number) {
+    const item = items[idx]
+    const isSensitive = sensitiveIds.has(item.id)
+    const isRevealed = revealedIds.has(item.id)
+    if (isSensitive && !isRevealed) {
+      toggleReveal(item.id)
+    } else {
+      setLightbox(idx)
+    }
   }
 
   const lb = lightbox !== null ? items[lightbox] : null
@@ -84,7 +124,6 @@ export default function GalleryPage() {
           style={{ background: 'rgba(0,0,0,0.92)' }}
           onClick={() => setLightbox(null)}
         >
-          {/* 이전 */}
           {lightbox! > 0 && (
             <button
               className="absolute left-3 p-2 text-white/60 hover:text-white transition-colors z-10"
@@ -93,7 +132,6 @@ export default function GalleryPage() {
               <ChevronLeft size={32} />
             </button>
           )}
-          {/* 이미지 */}
           <div className="flex flex-col items-center gap-3 max-w-[90vw] max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <img
               src={lb.url}
@@ -104,7 +142,6 @@ export default function GalleryPage() {
               <p className="text-sm text-white/60" style={{ fontFamily: 'var(--font-sans)' }}>{lb.caption}</p>
             )}
           </div>
-          {/* 다음 */}
           {lightbox! < items.length - 1 && (
             <button
               className="absolute right-3 p-2 text-white/60 hover:text-white transition-colors z-10"
@@ -113,12 +150,12 @@ export default function GalleryPage() {
               <ChevronRight size={32} />
             </button>
           )}
-          {/* 닫기 */}
           <button className="absolute top-4 right-4 p-2 text-white/60 hover:text-white transition-colors" onClick={() => setLightbox(null)}>
             <X size={22} />
           </button>
         </div>
       )}
+
       <div className="flex items-center justify-between mb-6">
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: 'var(--char-blue)' }}>Gallery</h1>
         {profile?.is_admin && (
@@ -150,28 +187,69 @@ export default function GalleryPage() {
         <p className="text-center py-20 opacity-30 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>갤러리가 비어있습니다</p>
       ) : (
         <div className="columns-2 md:columns-3 gap-3 space-y-3">
-          {items.map((item, idx) => (
-            <div key={item.id} className="break-inside-avoid relative group rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
-              <img
-                src={item.url}
-                alt={item.caption}
-                className="w-full object-cover block cursor-zoom-in"
-                onClick={() => setLightbox(idx)}
-              />
-              {item.caption && (
-                <p className="text-xs px-2 py-1 opacity-50" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{item.caption}</p>
-              )}
-              {profile?.is_admin && (
-                <button
-                  onClick={() => handleDelete(item.id, item.url)}
-                  className="absolute top-2 right-2 p-1.5 rounded-sm bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 size={12} />
-                </button>
-              )}
-            </div>
-          ))}
+          {items.map((item, idx) => {
+            const isSensitive = sensitiveIds.has(item.id)
+            const isRevealed = revealedIds.has(item.id)
+            const showBlur = isSensitive && !isRevealed
+            return (
+              <div key={item.id} className="break-inside-avoid relative group rounded-sm overflow-hidden border" style={{ borderColor: 'rgba(0,17,60,0.08)' }}>
+                <div className="relative cursor-pointer" onClick={() => handleImageClick(idx)}>
+                  <img
+                    src={item.url}
+                    alt={item.caption}
+                    className="w-full object-cover block transition-all duration-300"
+                    style={{ filter: showBlur ? 'blur(18px) brightness(0.7)' : 'none', cursor: showBlur ? 'pointer' : 'zoom-in' }}
+                  />
+                  {/* 블러 오버레이 */}
+                  {showBlur && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 pointer-events-none">
+                      <EyeOff size={22} className="text-white/80" />
+                      <span className="text-xs text-white/70 tracking-widest" style={{ fontFamily: 'var(--font-title)' }}>클릭하여 보기</span>
+                    </div>
+                  )}
+                  {/* 이미 열린 민감 이미지 - 다시 숨기기 버튼 */}
+                  {isSensitive && isRevealed && (
+                    <button
+                      className="absolute top-2 left-2 p-1 rounded-sm bg-black/50 text-white/60 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={e => { e.stopPropagation(); toggleReveal(item.id) }}
+                      title="다시 숨기기"
+                    >
+                      <Eye size={12} />
+                    </button>
+                  )}
+                </div>
+                {item.caption && (
+                  <p className="text-xs px-2 py-1 opacity-50" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>{item.caption}</p>
+                )}
+                {profile?.is_admin && (
+                  <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* 민감 토글 */}
+                    <button
+                      onClick={() => toggleSensitive(item.id)}
+                      className={`p-1.5 rounded-sm text-white transition-colors ${isSensitive ? 'bg-amber-600/80' : 'bg-black/50'}`}
+                      title={isSensitive ? '민감 해제' : '성인/스포 블러'}
+                    >
+                      <EyeOff size={11} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.id, item.url)}
+                      className="p-1.5 rounded-sm bg-black/50 text-white"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
+      )}
+
+      {/* 성인/스포 안내 */}
+      {items.some(i => sensitiveIds.has(i.id)) && (
+        <p className="text-center mt-6 text-xs opacity-30" style={{ fontFamily: 'var(--font-sans)', color: 'var(--char-blue)' }}>
+          ✦ 일부 이미지는 성인/스포일러 내용을 포함할 수 있습니다. 클릭하면 공개됩니다.
+        </p>
       )}
     </div>
   )
