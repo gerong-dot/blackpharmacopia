@@ -59,7 +59,7 @@ export default function RetroBadges() {
             )}
             {profile?.is_admin && (
               <button onClick={() => handleDelete(badge.id)}
-                className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 text-white opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <X size={9} />
               </button>
             )}

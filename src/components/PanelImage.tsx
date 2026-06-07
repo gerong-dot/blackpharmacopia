@@ -57,7 +57,7 @@ export default function PanelImage({ settingKey, aspectClass = 'aspect-square' }
           </div>
       }
       {/* 호버 오버레이 */}
-      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center">
         {uploading
           ? <Loader size={18} className="text-white animate-spin" />
           : <span className="text-white text-xs" style={{ fontFamily: 'var(--font-title)' }}>클릭하여 업로드</span>

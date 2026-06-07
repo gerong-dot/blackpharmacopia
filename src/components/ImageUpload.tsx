@@ -91,7 +91,7 @@ export default function ImageUpload({
 
         {/* 호버 오버레이 */}
         {!adjusting && (
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+          <div className="absolute inset-0 bg-black/40 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             {uploading
               ? <Loader size={22} className="text-white animate-spin" />
               : <>

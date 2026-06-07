@@ -55,7 +55,7 @@ export default function BookmarkBar() {
             {profile?.is_admin && (
               <button
                 onClick={() => handleDelete(bk.id)}
-                className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
+                className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-600 text-white opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
               >
                 <X size={8} />
               </button>

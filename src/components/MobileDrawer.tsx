@@ -70,7 +70,7 @@ export default function MobileDrawer({ onClose }: Props) {
                         </div>
                     }
                   </div>
-                  <div className="absolute inset-0 rounded-sm bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-sm bg-black/50 opacity-60 transition-opacity flex items-center justify-center">
                     {uploadingAvatar ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Camera size={16} className="text-white" />}
                   </div>
                   <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
@@ -91,7 +91,7 @@ export default function MobileDrawer({ onClose }: Props) {
                 ) : (
                   <div className="w-full text-center cursor-pointer group relative" onClick={() => { setEditingBio(true); setBioInput(profile.bio ?? '') }}>
                     <p className="text-xs leading-relaxed" style={{ fontFamily: 'var(--font-sans)', color: 'rgba(195,195,195,0.4)' }}>{profile.bio || '...'}</p>
-                    <Pencil size={10} className="absolute top-0 right-0 opacity-0 group-hover:opacity-40 text-white" />
+                    <Pencil size={10} className="absolute top-0 right-0 opacity-40 text-white" />
                   </div>
                 )}
 

@@ -140,7 +140,7 @@ export default function CharacterCards({ index }: { index?: number }) {
                 {/* 편집 버튼 */}
                 {profile?.is_admin && (
                   <button onClick={() => startEdit(char)}
-                    className="absolute top-2 right-2 p-1.5 rounded-sm bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                    className="absolute top-2 right-2 p-1.5 rounded-sm bg-black/40 text-white opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <Pencil size={11} />
                   </button>
                 )}

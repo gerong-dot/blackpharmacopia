@@ -135,7 +135,7 @@ export default function MiniGuestbook() {
           ) : null}
 
           {profile?.is_admin && (
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center">
               {uploading
                 ? <Loader size={18} color="white" className="animate-spin" />
                 : <span style={{ color: 'white', fontSize: '0.7rem', fontFamily: 'var(--font-title)' }}>클릭하여 업로드</span>
