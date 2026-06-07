@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { uploadImage } from '../../lib/storage'
 import { useAuth } from '../../contexts/AuthContext'
 import { Trash2, Plus, Loader } from 'lucide-react'
+import { getCached, setCached, invalidateCache } from '../../lib/queryCache'
 
 type GalleryItem = { id: string; url: string; caption: string; created_at: string }
 
@@ -16,13 +17,17 @@ export default function GalleryPage() {
 
   useEffect(() => { fetchItems() }, [])
 
-  async function fetchItems() {
-    // 공개 API로 호출 — 로그인 없이도 조회 가능
+  async function fetchItems(force = false) {
+    const cached = getCached<GalleryItem[]>('gallery')
+    if (cached && !force) { setItems(cached); setLoading(false); return }
     const res = await fetch('/api/gallery')
-    if (res.ok) setItems(await res.json())
-    else {
-      // 폴백: 로그인 상태면 supabase 직접 조회
+    if (res.ok) {
+      const data = await res.json()
+      setCached('gallery', data)
+      setItems(data)
+    } else {
       const { data } = await supabase.from('gallery').select('*').order('created_at', { ascending: false })
+      if (data) setCached('gallery', data)
       setItems(data ?? [])
     }
     setLoading(false)
@@ -37,7 +42,8 @@ export default function GalleryPage() {
       const url = await uploadImage(file, path)
       await supabase.from('gallery').insert({ url, caption: caption.trim() })
       setCaption('')
-      await fetchItems()
+      invalidateCache('gallery')
+      await fetchItems(true)
     } catch (err) {
       alert('업로드 실패: ' + (err as Error).message)
     }
@@ -50,7 +56,9 @@ export default function GalleryPage() {
     const path = url.split('/images/')[1]
     if (path) await supabase.storage.from('images').remove([path])
     await supabase.from('gallery').delete().eq('id', id)
-    setItems(prev => prev.filter(i => i.id !== id))
+    const next = items.filter(i => i.id !== id)
+    setCached('gallery', next)
+    setItems(next)
   }
 
   return (

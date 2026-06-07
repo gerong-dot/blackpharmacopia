@@ -7,7 +7,9 @@ import CursorFollower from './CursorFollower'
 import WindowCard from './WindowCard'
 import LoginModal from './LoginModal'
 import MobileDrawer from './MobileDrawer'
-import { uploadImage } from '../lib/storage'
+import { uploadImage, prefetchSettings } from '../lib/storage'
+import { setCached } from '../lib/queryCache'
+import { supabase } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
 import MiniGuestbook from './MiniGuestbook'
 import BookmarkBar from './BookmarkBar'
@@ -31,6 +33,20 @@ export default function MainLayout() {
   const [showLogin, setShowLogin] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
   const [customCursor, setCustomCursor] = useState(() => localStorage.getItem('customCursor') !== 'off')
+
+  useEffect(() => {
+    // 앱 진입 즉시 모든 설정 + 주요 데이터 병렬 prefetch
+    prefetchSettings()
+    Promise.all([
+      supabase.from('posts').select('*').order('created_at', { ascending: false }),
+      supabase.from('guestbook').select('*').order('created_at', { ascending: false }).limit(50),
+      fetch('/api/gallery').then(r => r.ok ? r.json() : null),
+    ]).then(([posts, guestbook, gallery]) => {
+      if (posts.data) setCached('posts', posts.data)
+      if (guestbook.data) setCached('guestbook', guestbook.data)
+      if (gallery) setCached('gallery', gallery)
+    })
+  }, [])
 
   useEffect(() => {
     document.body.classList.toggle('custom-cursor', customCursor)

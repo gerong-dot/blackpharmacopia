@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import type { Post } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { getSiteSetting, setSiteSetting } from '../../lib/storage'
+import { getCached, setCached } from '../../lib/queryCache'
 import { PenSquare, Search, Lock, X, Plus, ChevronRight, LayoutList, LayoutGrid } from 'lucide-react'
 
 type Board = { id: string; name: string; slug: string; description: string }
@@ -36,10 +37,12 @@ export default function BoardPage() {
   useEffect(() => { fetchAll() }, [])
 
   async function fetchAll() {
+    const cached = getCached<Post[]>('posts')
     const [postsRes, loadedBoards] = await Promise.all([
-      supabase.from('posts').select('*').order('created_at', { ascending: false }),
+      cached ? Promise.resolve({ data: cached }) : supabase.from('posts').select('*').order('created_at', { ascending: false }),
       loadBoards(),
     ])
+    if (!cached && postsRes.data) setCached('posts', postsRes.data)
     setPosts(postsRes.data ?? [])
     setBoards(loadedBoards)
     setLoading(false)

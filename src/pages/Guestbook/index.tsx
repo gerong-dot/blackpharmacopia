@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import type { GuestbookEntry } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { Trash2 } from 'lucide-react'
+import { getCached, setCached, invalidateCache } from '../../lib/queryCache'
 
 export default function GuestbookPage() {
   const [entries, setEntries] = useState<GuestbookEntry[]>([])
@@ -16,11 +17,18 @@ export default function GuestbookPage() {
     fetchEntries()
   }, [])
 
-  async function fetchEntries() {
+  async function fetchEntries(force = false) {
+    const cached = getCached<GuestbookEntry[]>('guestbook')
+    if (cached && !force) {
+      setEntries(cached)
+      setLoading(false)
+      return
+    }
     const { data } = await supabase
       .from('guestbook')
       .select('*')
       .order('created_at', { ascending: false })
+    if (data) setCached('guestbook', data)
     setEntries(data ?? [])
     setLoading(false)
   }
@@ -38,14 +46,17 @@ export default function GuestbookPage() {
     })
     setText('')
     if (!profile) setGuestName('')
-    await fetchEntries()
+    invalidateCache('guestbook')
+    await fetchEntries(true)
     setSubmitting(false)
   }
 
   async function handleDelete(entryId: string) {
     if (!confirm('삭제하시겠습니까?')) return
     await supabase.from('guestbook').delete().eq('id', entryId)
-    setEntries(prev => prev.filter(e => e.id !== entryId))
+    const next = entries.filter(e => e.id !== entryId)
+    setCached('guestbook', next)
+    setEntries(next)
   }
 
   return (

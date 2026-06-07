@@ -3,6 +3,21 @@ import { supabase } from './supabase'
 const settingsCache = new Map<string, string>()
 const pendingFetches = new Map<string, Promise<string>>()
 
+export const ALL_SETTING_KEYS = [
+  'main_banner', 'main_banner_pos',
+  'dday_bottom_image', 'dday_bottom_image_pos',
+  'character_cards',
+  'retro_badges',
+  'bookmarks',
+  'left_panel_bottom',
+  'notice_content', 'about_image', 'about_image_pos',
+  'boards_json',
+]
+
+export function prefetchSettings() {
+  ALL_SETTING_KEYS.forEach(key => { if (!settingsCache.has(key)) getSiteSetting(key) })
+}
+
 function compressImage(file: File): Promise<Blob> {
   return new Promise((resolve) => {
     const img = new Image()
