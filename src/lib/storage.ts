@@ -43,31 +43,15 @@ export async function uploadImage(file: File, path: string): Promise<string> {
   const compressed = await compressImage(file)
   const filePath = `${path}.jpg`
 
-  // 서버에서 서명 URL 발급받아 Supabase에 직접 업로드 (서버리스 바디 제한 우회)
-  const urlRes = await fetch('/api/get-upload-url', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ path: filePath }),
-  })
+  // Supabase 클라이언트로 직접 업로드 (서버리스 API 우회)
+  const { error } = await supabase.storage
+    .from('images')
+    .upload(filePath, compressed, { contentType: 'image/jpeg', upsert: true })
 
-  if (!urlRes.ok) {
-    const text = await urlRes.text().catch(() => '')
-    let msg = '업로드 URL 생성 실패'
-    try { msg = JSON.parse(text).error ?? msg } catch { msg = text || msg }
-    throw new Error(msg)
-  }
+  if (error) throw new Error(error.message)
 
-  const { signedUrl, publicUrl } = await urlRes.json()
-
-  const uploadRes = await fetch(signedUrl, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'image/jpeg' },
-    body: compressed,
-  })
-
-  if (!uploadRes.ok) throw new Error(`스토리지 업로드 실패 (${uploadRes.status})`)
-
-  return publicUrl
+  const { data } = supabase.storage.from('images').getPublicUrl(filePath)
+  return data.publicUrl
 }
 
 export async function getSiteSetting(key: string): Promise<string> {
